@@ -9,14 +9,22 @@ function App() {
   const [jogos, setJogos] = useState([]);
   const [pagina, setPagina] = useState('home'); // 'home' ou 'simulador'
 
-  useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/v1/jogos')
-      .then(res => res.json())
-      .then(data => {
-        setJogos(data.matches || data);
-      })
-      .catch(err => console.error("Erro ao buscar jogos:", err));
-  }, []);
+ useEffect(() => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  console.log("Variável de ambiente carregada:", apiUrl); // Isso vai te dizer se está undefined ou não
+
+  if (!apiUrl) {
+    console.error("A URL da API não foi definida!");
+    return;
+  }
+
+  fetch(`${apiUrl}/api/v1/jogos`)
+    .then(res => res.json())
+    .then(data => {
+      setJogos(data.matches || data);
+    })
+    .catch(err => console.error("Erro ao buscar jogos no endpoint:", err));
+}, []);
 
   return (
     <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', padding: '2rem', fontFamily: 'sans-serif' }}>
