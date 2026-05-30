@@ -12,19 +12,15 @@ load_dotenv()
 
 app = FastAPI()
 
-
-origins = [
-    "https://match-rate-1ncn6747j-patrick-carvalho-souza-s-projects.vercel.app",
-    "https://matchrate.vercel.app" # Caso você tenha um domínio personalizado no futuro
-]
-
+# O middleware precisa ser configurado desta forma:
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Libera os domínios listados acima
+    allow_origins=["*"],  # Para testes, "*" libera tudo
     allow_credentials=True,
-    allow_methods=["*"],    # Libera GET, POST, PUT, DELETE, etc.
-    allow_headers=["*"],    # Libera todos os headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
 models.Base.metadata.create_all(bind=engine)
 
 @app.post("/api/v1/avaliacoes/", response_model=schemas.AvaliacaoResponse)
