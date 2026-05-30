@@ -4,12 +4,14 @@ function StandingsTable() {
   const [data, setData] = useState(null);
   const [grupoIndex, setGrupoIndex] = useState(0);
 
-  useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/v1/tabela')
-      .then(res => res.json())
-      .then(data => setData(data))
-      .catch(err => console.error("Erro na tabela:", err));
-  }, []);
+ useEffect(() => {
+  const baseUrl = import.meta.env.VITE_API_URL;
+  
+  fetch(`${baseUrl}/api/v1/tabela`)
+    .then(res => res.json())
+    .then(data => setData(data))
+    .catch(err => console.error("Erro na tabela:", err));
+}, []);
 
   if (!data) return <p style={{color: '#fff', textAlign: 'center'}}>Carregando tabela...</p>;
 
