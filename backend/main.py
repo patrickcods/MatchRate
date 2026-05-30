@@ -64,10 +64,17 @@ async def listar_jogos():
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 "https://api.football-data.org/v4/competitions/WC/matches?season=2026",
-                headers={"X-Auth-Token": os.environ.get("FOOTBALL_KEY")}
+                headers={"X-Auth-Token": os.environ.get("FOOTBALL_KEY")},
+                timeout=10.0
             )
+            
+            # Se a resposta da API de futebol não for sucesso, levante um erro
+            if response.status_code != 200:
+                return {"erro": f"API externa retornou {response.status_code}"}
+            
             return response.json()
     except Exception as e:
+        # ISSO GARANTE QUE O RETORNO SEJA UM JSON, E NÃO HTML
         return {"erro": str(e)}
     
 @app.get("/api/v1/tabela")
