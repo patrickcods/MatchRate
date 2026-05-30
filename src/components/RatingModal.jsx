@@ -36,7 +36,7 @@ function RatingModal({ jogo, onClose }) {
   };
 
   const compartilhar = () => {
-    const texto = `Meu palpite para ${timeCasa} x ${timeFora} é ${golCasa} x ${golFora}! Faz o teu em matchrate.vercel.app 🏆`;
+    const texto = `Meu palpite para ${timeCasa} x ${timeFora} é ${golCasa} x ${golFora}! Faz o teu em https://match-rate-3e83xehat-patrick-carvalho-souza-s-projects.vercel.app/ 🏆`;
     if (navigator.share) {
       navigator.share({ text: texto });
     } else {
