@@ -19,12 +19,8 @@ function RatingModal({ jogo, onClose }) {
 
   const salvarPalpite = async () => {
     if (golCasa === '' || golFora === '') return;
-    
     try {
-      // DICA: Use a variável de ambiente process.env.VITE_API_URL em vez do localhost fixo
-      const baseUrl = process.env.VITE_API_URL || 'http://127.0.0.1:8000'; 
-      
-      const response = await fetch(`${baseUrl}/api/v1/palpites/`, {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/palpites/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -33,18 +29,12 @@ function RatingModal({ jogo, onClose }) {
           gol_fora: Number(golFora)
         })
       });
-
-      if (response.ok) {
-        setPalpiteSalvo(true);
-        setMensagem("Palpite salvo com sucesso! ⚽"); // <--- ADICIONADO
-      } else {
-        setMensagem("Erro ao salvar palpite."); // <--- ADICIONADO
-      }
+      if (response.ok) setPalpiteSalvo(true);
     } catch (error) {
       console.error("Erro ao salvar palpite:", error);
-      setMensagem("Erro de conexão com o servidor."); // <--- ADICIONADO
     }
   };
+
   const compartilhar = () => {
     const texto = `Meu palpite para ${timeCasa} x ${timeFora} é ${golCasa} x ${golFora}! Faz o teu em https://match-rate-amber.vercel.app/ 🏆`;
     if (navigator.share) {
