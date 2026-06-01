@@ -7,12 +7,11 @@ import BracketSimulator from './components/BracketSimulator';
 function App() {
   const [jogoSelecionado, setJogoSelecionado] = useState(null);
   const [jogos, setJogos] = useState([]);
-  const [pagina, setPagina] = useState('home'); // 'home' ou 'simulador'
+  const [pagina, setPagina] = useState('home');
 
  useEffect(() => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  console.log("Variável de ambiente carregada:", apiUrl); // Isso vai te dizer se está undefined ou não
-
+  console.log("Variável de ambiente carregada:", apiUrl)
   if (!apiUrl) {
     console.error("A URL da API não foi definida!");
     return;

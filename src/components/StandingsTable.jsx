@@ -27,7 +27,6 @@ function StandingsTable() {
   return (
     <div style={{ backgroundColor: '#141414', padding: '1rem', borderRadius: '12px', margin: '1rem auto', maxWidth: '600px', border: '1px solid #333' }}>
       
-      {/* Cabeçalho com Seta */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <span onClick={() => mudarGrupo(-1)} style={{ cursor: 'pointer', color: '#6c189c', fontSize: '1.2rem' }}>{'<'}</span>
         <h3 style={{ color: '#fff', margin: 0 }}>{grupoAtual.group.replace('_', ' ')}</h3>

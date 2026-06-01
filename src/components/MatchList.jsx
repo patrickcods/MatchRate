@@ -5,18 +5,13 @@ function MatchList({ jogos, onSelecionar }) {
   const [filtro, setFiltro] = useState('GROUP_STAGE');
   const fases = ['GROUP_STAGE', 'LAST_16', 'QUARTER_FINALS', 'SEMI_FINALS', 'FINAL'];
   const labels = { GROUP_STAGE: 'Grupos', LAST_16: 'Oitavas', QUARTER_FINALS: 'Quartas', SEMI_FINALS: 'Semifinal', FINAL: 'Final' };
-
-  // 1. Definição correta dos dados
   const jogosAtuais = jogos || [];
 
-  // 2. LOG DE INVESTIGAÇÃO (Isso vai resolver o mistério)
   if (jogosAtuais.length > 0) {
     console.log("ESTRUTURA DO PRIMEIRO JOGO:", jogosAtuais[0]);
     console.log("VALOR DO STAGE:", jogosAtuais[0].stage);
   }
 
-  // 3. Filtro corrigido
-  // Aqui estamos filtrando pela fase que o usuário selecionou
   const jogosDaFase = jogosAtuais.filter(j => j.stage === filtro);
   
   const jogosEncerrados = jogosDaFase.filter(j => j.status === 'FINISHED');
@@ -28,7 +23,6 @@ function MatchList({ jogos, onSelecionar }) {
 
   return (
     <div>
-      {/* Botões de Filtro */}
       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '2rem' }}>
         {fases.map(fase => (
           <button key={fase} onClick={() => setFiltro(fase)} style={{
@@ -43,7 +37,7 @@ function MatchList({ jogos, onSelecionar }) {
         ))}
       </div>
 
-      {/* Lista de Avaliar */}
+      {/* Lista de Avaliar jogos da Copa */}
       <h2 style={{ color: '#fff', textAlign: 'center' }}>Jogos para Avaliar</h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', minHeight: '100px' }}>
         {jogosEncerrados.length > 0 ? (
@@ -53,7 +47,7 @@ function MatchList({ jogos, onSelecionar }) {
         )}
       </div>
 
-      {/* Lista de Futuros */}
+      {/* Lista de Futuros Jogos */}
       <h2 style={{ color: '#fff', textAlign: 'center', marginTop: '2rem' }}>Próximos Jogos</h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', minHeight: '100px' }}>
         {jogosFuturos.length > 0 ? (
