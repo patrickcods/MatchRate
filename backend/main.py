@@ -8,6 +8,8 @@ import os
 import httpx
 from dotenv import load_dotenv
 load_dotenv()
+from auth import hash_senha, verificar_senha, criar_token, get_usuario_atual
+from fastapi.security import OAuth2PasswordRequestForm
 
 
 app = FastAPI()
@@ -101,3 +103,30 @@ if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000)) # O Render injeta a porta aqui
     uvicorn.run("main:app", host="0.0.0.0", port=port)
+
+
+@app.post("/api/v1/auth/cadastro")
+def cadastro(dados: dict, db: Session = Depends(get_db)):
+    if db.query(models.Usuario).filter(models.Usuario.email == dados["email"]).first():
+        raise HTTPException(status_code=400, detail="Email já cadastrado")
+    usuario = models.Usuario(
+        nome=dados["nome"],
+        email=dados["email"],
+        senha_hash=hash_senha(dados["senha"])
+    )
+    db.add(usuario)
+    db.commit()
+    db.refresh(usuario)
+    return {"id": usuario.id, "nome": usuario.nome, "email": usuario.email}
+
+@app.post("/api/v1/auth/login")
+def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    usuario = db.query(models.Usuario).filter(models.Usuario.email == form.username).first()
+    if not usuario or not verificar_senha(form.password, usuario.senha_hash):
+        raise HTTPException(status_code=401, detail="Email ou senha incorretos")
+    token = criar_token({"sub": usuario.email})
+    return {"access_token": token, "token_type": "bearer"}
+
+@app.get("/api/v1/auth/me")
+def me(usuario = Depends(get_usuario_atual)):
+    return {"id": usuario.id, "nome": usuario.nome, "email": usuario.email}
