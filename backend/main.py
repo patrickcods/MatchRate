@@ -117,3 +117,9 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
 @app.get("/api/v1/auth/me")
 def me(usuario = Depends(get_usuario_atual)):
     return {"id": usuario.id, "nome": usuario.nome, "email": usuario.email}
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
