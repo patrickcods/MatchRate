@@ -92,13 +92,6 @@ def salvar_palpite(palpite: dict, db: Session = Depends(get_db)):
     return novo
 
 
-if __name__ == "__main__":
-    import uvicorn
-    import os
-    port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
-
-
 @app.post("/api/v1/auth/cadastro")
 def cadastro(dados: dict, db: Session = Depends(get_db)):
     if db.query(models.Usuario).filter(models.Usuario.email == dados["email"]).first():
@@ -124,3 +117,10 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
 @app.get("/api/v1/auth/me")
 def me(usuario = Depends(get_usuario_atual)):
     return {"id": usuario.id, "nome": usuario.nome, "email": usuario.email}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
