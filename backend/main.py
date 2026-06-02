@@ -14,10 +14,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 app = FastAPI()
 
-# O middleware precisa ser configurado desta forma:
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Para testes, "*" libera tudo
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -70,13 +69,11 @@ async def listar_jogos():
                 timeout=10.0
             )
             
-            # Se a resposta da API de futebol não for sucesso, levante um erro
             if response.status_code != 200:
                 return {"erro": f"API externa retornou {response.status_code}"}
             
             return response.json()
     except Exception as e:
-        # ISSO GARANTE QUE O RETORNO SEJA UM JSON, E NÃO HTML
         return {"erro": str(e)}
     
 @app.get("/api/v1/tabela")
@@ -101,7 +98,7 @@ def salvar_palpite(palpite: dict, db: Session = Depends(get_db)):
 if __name__ == "__main__":
     import uvicorn
     import os
-    port = int(os.environ.get("PORT", 10000)) # O Render injeta a porta aqui
+    port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
 
 
