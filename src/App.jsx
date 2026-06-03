@@ -17,6 +17,17 @@ function App() {
   };
 
  useEffect(() => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then(res => res.ok ? res.json() : null)
+    .then(data => { if (data) setUsuario(data) })
+    .catch(() => localStorage.removeItem('token'))
+}, [])
+
+ useEffect(() => {
   const apiUrl = import.meta.env.VITE_API_URL;
   console.log("Variável de ambiente carregada:", apiUrl)
   if (!apiUrl) {
