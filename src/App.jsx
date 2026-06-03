@@ -3,11 +3,18 @@ import MatchList from './components/MatchList';
 import RatingModal from './components/RatingModal';
 import StandingsTable from './components/StandingsTable';
 import BracketSimulator from './components/BracketSimulator';
+import AuthModal from './components/AuthModal';
 
 function App() {
   const [jogoSelecionado, setJogoSelecionado] = useState(null);
   const [jogos, setJogos] = useState([]);
   const [pagina, setPagina] = useState('home');
+  const [usuario, setUsuario] = useState(null); 
+  const [mostrarAuth, setMostrarAuth] = useState(false);
+  const logout = () => {
+    setUsuario(null);
+    localStorage.removeItem('token'); // Se você estiver salvando o token
+  };
 
  useEffect(() => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -30,13 +37,29 @@ function App() {
       
       {/* HEADER E TÍTULO */}
       <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ color: '#fff', fontSize: '5rem', fontWeight: '900', margin: 15 }}>
-          Match<span style={{ color: '#6c189c' }}>Rate</span>
-        </h1>
-        <p style={{ color: '#888', marginTop: '1.8rem', fontSize: '1.1rem' }}>
-          Avalie os jogos da Copa do Mundo 2026
-        </p>
-      </header>
+    <h1 style={{ color: '#fff', fontSize: '5rem', fontWeight: '900', margin: 15 }}>
+      Match<span style={{ color: '#6c189c' }}>Rate</span>
+    </h1>
+    <p style={{ color: '#888', marginTop: '1.8rem', fontSize: '1.1rem' }}>
+      Avalie os jogos da Copa do Mundo 2026
+    </p>
+    <div style={{ marginTop: '1rem' }}>
+      {usuario ? (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+          <span style={{ color: '#a78bfa', fontWeight: 'bold' }}>Olá, {usuario.nome.split(' ')[0]}!</span>
+          <button onClick={logout} style={{ padding: '6px 16px', borderRadius: '20px', border: '1px solid #444', backgroundColor: 'transparent', color: '#888', cursor: 'pointer', fontSize: '0.85rem' }}>
+            Sair
+          </button>
+        </div>
+      ) : (
+        <button onClick={() => setMostrarAuth(true)} style={{ padding: '8px 24px', borderRadius: '20px', border: '1px solid #6c189c', backgroundColor: 'transparent', color: '#a78bfa', cursor: 'pointer', fontWeight: 'bold' }}>
+          Entrar / Cadastrar
+        </button>
+      )}
+    </div>
+  </header>
+
+  {mostrarAuth && <AuthModal onClose={() => setMostrarAuth(false)} />}
 
       {/* MENU DE NAVEGAÇÃO */}
       <nav style={{ textAlign: 'center', marginBottom: '2rem' }}>

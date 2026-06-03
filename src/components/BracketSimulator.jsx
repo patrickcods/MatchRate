@@ -105,7 +105,6 @@ const JogoCard = ({ jogo, vencedores, setter, votar }) => (
   </div>
 );
 
-// Botão de compartilhamento reutilizável
 const BotoesCompartilhar = ({ texto, refArea }) => {
   const [copiado, setCopiado] = useState(false);
 
