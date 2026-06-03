@@ -9,6 +9,7 @@ function AuthModal({ onClose, onLogin }) {
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
+  const [verSenha, setVerSenha] = useState(false)
 
   const inputStyle = {
     width: '100%', padding: '12px', backgroundColor: '#222',
@@ -50,7 +51,21 @@ function AuthModal({ onClose, onLogin }) {
           <input placeholder="Nome" value={nome} onChange={e => setNome(e.target.value)} style={inputStyle} />
         )}
         <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
-        <input placeholder="Senha" type="password" value={senha} onChange={e => setSenha(e.target.value)} style={inputStyle} />
+        <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
+  <input
+    placeholder="Senha"
+    type={verSenha ? 'text' : 'password'}
+    value={senha}
+    onChange={e => setSenha(e.target.value)}
+    style={{ ...inputStyle, marginBottom: 0, paddingRight: '3rem' }}
+  />
+  <span
+    onClick={() => setVerSenha(!verSenha)}
+    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: '#888', fontSize: '1.1rem' }}
+  >
+    {verSenha ? '🙈' : '👁️'}
+  </span>
+</div>
 
         {erro && <p style={{ color: '#f87171', fontSize: '0.85rem', margin: '0 0 0.75rem 0' }}>{erro}</p>}
 
