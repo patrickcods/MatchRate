@@ -1,26 +1,23 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
+import bcrypt
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from database import get_db
 import models
-import os
 
-SECRET_KEY = os.getenv("SECRET_KEY", "matchrate2026copasecret")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 10080))
+SECRET_KEY = "matchrate2026copasecret"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-def hash_senha(senha: str):
-    return pwd_context.hash(senha)
+def hash_senha(senha: str) -> str:
+    return bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-def verificar_senha(senha: str, hash: str):
-    return pwd_context.verify(senha, hash)
+def verificar_senha(senha: str, hash: str) -> bool:
+    return bcrypt.checkpw(senha.encode('utf-8'), hash.encode('utf-8'))
 
 def criar_token(data: dict):
     dados = data.copy()
@@ -35,7 +32,6 @@ def get_usuario_atual(token: str = Depends(oauth2_scheme), db: Session = Depends
             raise HTTPException(status_code=401, detail="Token inválido")
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido")
-    
     usuario = db.query(models.Usuario).filter(models.Usuario.email == email).first()
     if not usuario:
         raise HTTPException(status_code=401, detail="Usuário não encontrado")
