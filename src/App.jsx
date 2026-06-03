@@ -52,7 +52,7 @@ function App() {
           </button>
         </div>
       ) : (
-        <button onClick={() => setMostrarAuth(true)} style={{ padding: '8px 24px', borderRadius: '20px', border: '1px solid #ffffff', backgroundColor: 'transparent', color: '#a78bfa', cursor: 'pointer', fontWeight: 'bold' }}>
+        <button onClick={() => setMostrarAuth(true)} style={{ padding: '8px 24px', borderRadius: '20px', border: '1px solid #a78bfa', backgroundColor: 'transparent', color: '#ffffff', cursor: 'pointer', fontWeight: 'bold' }}>
           Entrar / Cadastrar
         </button>
       )}
