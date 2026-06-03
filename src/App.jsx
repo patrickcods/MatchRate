@@ -59,7 +59,12 @@ function App() {
     </div>
   </header>
 
-  {mostrarAuth && <AuthModal onClose={() => setMostrarAuth(false)} />}
+  {mostrarAuth && (
+    <AuthModal
+      onClose={() => setMostrarAuth(false)}
+      onLogin={(user) => { setUsuario(user); setMostrarAuth(false); }}
+    />
+  )}
 
       {/* MENU DE NAVEGAÇÃO */}
       <nav style={{ textAlign: 'center', marginBottom: '2rem' }}>

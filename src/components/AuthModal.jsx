@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 
-function AuthModal({ onClose }) {
+function AuthModal({ onClose, onLogin }) {
   const { login, cadastro } = useAuth()
   const [modo, setModo] = useState('login')
   const [nome, setNome] = useState('')
@@ -25,7 +25,12 @@ function AuthModal({ onClose }) {
       } else {
         await cadastro(nome, email, senha)
       }
-      onClose()
+      const token = localStorage.getItem('token')
+      const me = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const userData = await me.json()
+      onLogin(userData)
     } catch (e) {
       setErro(e.message)
     } finally {
