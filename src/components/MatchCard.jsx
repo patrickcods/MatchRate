@@ -50,7 +50,7 @@ function MatchCard({ jogo, onSelecionar }) {
       onMouseLeave={e => e.currentTarget.style.borderColor = corBorda}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <p style={{ color: '#6c189c', fontSize: '0.75rem', fontWeight: 'bold', margin: 0 }}>
+        <p style={{  padding: '8px 23px', borderRadius: '20px', border: '1px solid #a78bfa', backgroundColor: '#2c1964a1', color: '#ffffff', cursor: 'pointer', fontWeight: 'bold'}}>
           {fases[jogo.stage] || jogo.stage}
         </p>
         {badgeStatus && (
