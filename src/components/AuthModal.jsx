@@ -63,7 +63,9 @@ function AuthModal({ onClose, onLogin }) {
     onClick={() => setVerSenha(!verSenha)}
     style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: '#888', fontSize: '1.1rem' }}
   >
-    {verSenha ? '🙈' : '👁️'}
+    <button onClick={() => setVerSenha(!verSenha)}>
+      {verSenha ? <EyeOff size={20} color="#888" /> : <Eye size={20} color="#888" />}
+    </button>
   </span>
 </div>
 

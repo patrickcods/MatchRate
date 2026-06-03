@@ -4,6 +4,7 @@ import RatingModal from './components/RatingModal';
 import StandingsTable from './components/StandingsTable';
 import BracketSimulator from './components/BracketSimulator';
 import AuthModal from './components/AuthModal';
+import { Eye, EyeOff } from 'lucide-react';
 
 function App() {
   const [jogoSelecionado, setJogoSelecionado] = useState(null);
