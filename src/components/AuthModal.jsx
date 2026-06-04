@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { Eye, EyeOff } from 'lucide-react';
 
 function AuthModal({ onClose, onLogin }) {
   const { login, cadastro } = useAuth()
