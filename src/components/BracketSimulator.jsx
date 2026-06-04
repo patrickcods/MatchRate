@@ -128,8 +128,6 @@ const BotoesCompartilhar = ({ texto, refArea }) => {
     link.click();
   };
 
-  const [salvando, setSalvando] = useState(false)
-  const [simulacaoSalva, setSimulacaoSalva] = useState(false)
 
   return (
     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '1.5rem', flexWrap: 'wrap' }}>
@@ -231,13 +229,14 @@ function BracketSimulator({ usuario }) {
     const final    = gerarFinal().map(j    => `  ${j.casa?.nome || '?'} vs ${j.fora?.nome || '?'} → ${campeao?.nome || '?'}`).join('\n');
     return `Minha simulação da Copa 2026:\n\nOitavas:\n${oitavas}\n\nQuartas:\n${quartas}\n\nSemifinais:\n${semi}\n\nFinal:\n${final}\n\n🏆 Campeão: ${campeao?.nome}\n\nFaça a sua em ${SITE_URL}`;
   };
-
+  
   const containerStyle = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '1.5rem' };
   const btnAvancarStyle = { padding: '12px 35px', backgroundColor: '#6c189c', color: '#fff', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold', marginTop: '2rem', fontSize: '1rem' };
   const bannerStyle = { backgroundColor: '#1a1a2e', border: '1px solid #6c189c', borderRadius: '10px', padding: '0.75rem 1.5rem', maxWidth: '600px', margin: '0 auto 1.5rem auto' };
   const bannerTexto = { color: '#fff', fontSize: '0.85rem', margin: 0, lineHeight: 1.6 };
-
   const terceiros = getTerceiros();
+  const [salvando, setSalvando] = useState(false)
+  const [simulacaoSalva, setSimulacaoSalva] = useState(false)
 
   return (
     <div style={{ color: '#fff', padding: '20px', maxWidth: '1100px', margin: '0 auto', fontFamily: 'sans-serif' }}>
