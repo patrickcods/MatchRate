@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from auth import hash_senha, verificar_senha, criar_token, get_usuario_atual
 from fastapi.security import OAuth2PasswordRequestForm
+import json
 
 
 app = FastAPI()
@@ -117,6 +118,66 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
 @app.get("/api/v1/auth/me")
 def me(usuario = Depends(get_usuario_atual)):
     return {"id": usuario.id, "nome": usuario.nome, "email": usuario.email}
+
+@app.post("/api/v1/simulacoes/")
+def salvar_simulacao(dados: dict, db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
+    # Verifica se já tem simulação salva e atualiza
+    existente = db.query(models.Simulacao).filter(models.Simulacao.usuario_id == usuario.id).first()
+    if existente:
+        existente.campeao_nome = dados["campeao_nome"]
+        existente.campeao_flag = dados.get("campeao_flag", "")
+        existente.semi = json.dumps(dados.get("semi", []))
+        existente.quartas = json.dumps(dados.get("quartas", []))
+        existente.oitavas = json.dumps(dados.get("oitavas", []))
+        existente.criado_em = datetime.utcnow()
+        db.commit()
+        return {"ok": True}
+    nova = models.Simulacao(
+        usuario_id=usuario.id,
+        campeao_nome=dados["campeao_nome"],
+        campeao_flag=dados.get("campeao_flag", ""),
+        semi=json.dumps(dados.get("semi", [])),
+        quartas=json.dumps(dados.get("quartas", [])),
+        oitavas=json.dumps(dados.get("oitavas", []))
+    )
+    db.add(nova)
+    db.commit()
+    return {"ok": True}
+
+@app.get("/api/v1/simulacoes/me")
+def minha_simulacao(db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
+    sim = db.query(models.Simulacao).filter(models.Simulacao.usuario_id == usuario.id).first()
+    if not sim:
+        return None
+    return {
+        "campeao_nome": sim.campeao_nome,
+        "campeao_flag": sim.campeao_flag,
+        "semi": json.loads(sim.semi or "[]"),
+        "quartas": json.loads(sim.quartas or "[]"),
+        "oitavas": json.loads(sim.oitavas or "[]"),
+        "criado_em": sim.criado_em
+    }
+
+@app.get("/api/v1/simulacoes/ranking")
+def ranking_campeoes(db: Session = Depends(get_db)):
+    resultado = db.query(
+        models.Simulacao.campeao_nome,
+        models.Simulacao.campeao_flag,
+        func.count(models.Simulacao.id).label("total")
+    ).group_by(models.Simulacao.campeao_nome).order_by(func.count(models.Simulacao.id).desc()).all()
+
+    total_geral = db.query(func.count(models.Simulacao.id)).scalar() or 1
+
+    return [
+        {
+            "campeao": r.campeao_nome,
+            "flag": r.campeao_flag,
+            "total": r.total,
+            "percentual": round((r.total / total_geral) * 100, 1)
+        }
+        for r in resultado
+    ]
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
 
+
 const SITE_URL = 'https://match-rate-amber.vercel.app';
 
 const GRUPOS_DADOS = {
@@ -127,6 +128,9 @@ const BotoesCompartilhar = ({ texto, refArea }) => {
     link.click();
   };
 
+  const [salvando, setSalvando] = useState(false)
+  const [simulacaoSalva, setSimulacaoSalva] = useState(false)
+
   return (
     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '1.5rem', flexWrap: 'wrap' }}>
       <button onClick={compartilharTexto} style={{
@@ -145,7 +149,7 @@ const BotoesCompartilhar = ({ texto, refArea }) => {
   );
 };
 
-function BracketSimulator() {
+function BracketSimulator({ usuario }) {
   const [fase, setFase] = useState('grupos');
   const [escolhas, setEscolhas] = useState({});
   const [terceirosSelecionados, setTerceirosSelecionados] = useState([]);
@@ -430,7 +434,63 @@ function BracketSimulator() {
           <img src={campeao?.flag} alt={campeao?.nome} style={{ width: '120px', height: '80px', objectFit: 'cover', borderRadius: '8px', marginBottom: '1.5rem' }} />
           <h1 style={{ fontSize: '4rem', color: '#ffffff', margin: 0 }}>{campeao?.nome}</h1> <br />
           <h2 style={{ color: '#fff', marginTop: '1rem' }}>É o seu Campeão da Copa do Mundo 2026!</h2>
-
+          {/* SALVAR NO PERFIL */}
+        <div style={{ margin: '1.5rem auto', maxWidth: '400px' }}>
+          {usuario ? (
+            <button
+              onClick={async () => {
+                setSalvando(true)
+                try {
+                  const token = localStorage.getItem('token')
+                  await fetch(`${import.meta.env.VITE_API_URL}/api/v1/simulacoes/`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                      campeao_nome: campeao.nome,
+                      campeao_flag: campeao.flag,
+                      semi: gerarSemi().map(j => ({
+                        casa: j.casa?.nome, fora: j.fora?.nome,
+                        vencedor: vencedoresSemi[j.id]?.nome
+                      })),
+                      quartas: gerarQuartas().map(j => ({
+                        casa: j.casa?.nome, fora: j.fora?.nome,
+                        vencedor: vencedoresQuartas[j.id]?.nome
+                      })),
+                      oitavas: gerarOitavas().map(j => ({
+                        casa: j.casa?.nome, fora: j.fora?.nome,
+                        vencedor: vencedoresOitavas[j.id]?.nome
+                      }))
+                    })
+                  })
+                  setSimulacaoSalva(true)
+                } catch (e) {
+                  console.error(e)
+                } finally {
+                  setSalvando(false)
+                }
+              }}
+              disabled={salvando || simulacaoSalva}
+              style={{
+                width: '100%', padding: '14px', borderRadius: '12px', border: 'none',
+                backgroundColor: simulacaoSalva ? '#1a472a' : '#6c189c',
+                color: simulacaoSalva ? '#4ade80' : '#fff',
+                fontWeight: 'bold', fontSize: '1rem',
+                cursor: salvando || simulacaoSalva ? 'default' : 'pointer'
+              }}
+            >
+              {simulacaoSalva ? '✓ Simulação salva no perfil!' : salvando ? 'Salvando...' : '💾 Salvar no meu perfil'}
+            </button>
+          ) : (
+    <div style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '12px', padding: '1rem' }}>
+      <p style={{ color: '#888', margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>
+        Faça login para salvar sua simulação e aparecer no ranking!
+      </p>
+    </div>
+  )}
+</div>
           {/* Histórico completo */}
           <div style={{ backgroundColor: '#141414', border: '1px solid #333', borderRadius: '12px', padding: '1.5rem', maxWidth: '500px', margin: '2rem auto', textAlign: 'left' }}>
             <h3 style={{ color: '#ffffff', margin: '0 0 1rem 0', textAlign: 'center' }}>Sua jornada completa</h3>

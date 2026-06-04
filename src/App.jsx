@@ -5,6 +5,8 @@ import StandingsTable from './components/StandingsTable';
 import BracketSimulator from './components/BracketSimulator';
 import AuthModal from './components/AuthModal';
 import { Eye, EyeOff } from 'lucide-react';
+import RankingCampeoes from './components/RankingCampeoes'
+
 
 function App() {
   const [jogoSelecionado, setJogoSelecionado] = useState(null);
@@ -88,10 +90,11 @@ function App() {
       {pagina === 'home' ? (
         <>
           <StandingsTable />
+          <RankingCampeoes />
           <MatchList jogos={jogos} onSelecionar={setJogoSelecionado} />
         </>
       ) : (
-        <BracketSimulator />
+        <BracketSimulator usuario={usuario} />
       )}
       
       {/* MODAL DE AVALIAÇÃO */}
