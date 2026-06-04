@@ -11,6 +11,7 @@ load_dotenv()
 from auth import hash_senha, verificar_senha, criar_token, get_usuario_atual
 from fastapi.security import OAuth2PasswordRequestForm
 import json
+from datetime import datetime
 
 
 app = FastAPI()
