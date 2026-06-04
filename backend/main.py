@@ -163,7 +163,7 @@ def minha_simulacao(db: Session = Depends(get_db), usuario = Depends(get_usuario
 def ranking_campeoes(db: Session = Depends(get_db)):
     resultado = db.query(
         models.Simulacao.campeao_nome,
-        models.Simulacao.campeao_flag,
+        func.max(models.Simulacao.campeao_flag).label("campeao_flag"),
         func.count(models.Simulacao.id).label("total")
     ).group_by(models.Simulacao.campeao_nome).order_by(func.count(models.Simulacao.id).desc()).all()
 
