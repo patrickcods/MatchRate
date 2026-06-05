@@ -159,9 +159,9 @@ def minha_simulacao(db: Session = Depends(get_db), usuario = Depends(get_usuario
         "criado_em": sim.criado_em
     }
 
-@app.get("/")
-def read_root():
-    return {"status": "ok"}
+@app.head("/")
+def health_check_head():
+    return {"status": "online"}
 
 @app.get("/api/v1/simulacoes/ranking")
 def ranking_campeoes(db: Session = Depends(get_db)):
