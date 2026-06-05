@@ -22,7 +22,6 @@ Visualização de Dados: Recharts, html2canvas
 
 Backend:
 
-Bash
 cd backend
 python -m venv .venv
 source .venv/bin/activate
@@ -33,7 +32,6 @@ gunicorn main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$P
 
 Frontend:
 
-Bash
 cd frontend
 npm install
 # Configure VITE_API_URL no seu arquivo .env
