@@ -19,6 +19,7 @@ function App() {
     localStorage.removeItem('token'); 
   };
 
+{/* Puxando da API a parte da autenticação */}
  useEffect(() => {
   const token = localStorage.getItem('token')
   if (!token) return
@@ -30,6 +31,7 @@ function App() {
     .catch(() => localStorage.removeItem('token'))
 }, [])
 
+
  useEffect(() => {
   const apiUrl = import.meta.env.VITE_API_URL;
   console.log("Variável de ambiente carregada:", apiUrl)
@@ -38,6 +40,7 @@ function App() {
     return;
   }
 
+  {/* Buscando Jogos da API */}
   fetch(`${apiUrl}/api/v1/jogos`)
     .then(res => res.json())
     .then(data => {
