@@ -28,12 +28,12 @@ function RatingModal({ jogo, onClose }) {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // Obrigatório agora!
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify({
           id_jogo: jogo.id,
-          jogo_nome: `${timeCasa} vs ${timeFora}`, // Inclua isso para facilitar a listagem no perfil
-          placar_casa: Number(golCasa),
+          jogo_nome: `${timeCasa} vs ${timeFora}`,
+          gol_casa: Number(golCasa),
           placar_fora: Number(golFora)
         })
       });
@@ -48,20 +48,6 @@ function RatingModal({ jogo, onClose }) {
       console.error("Erro ao salvar palpite:", error);
       setMensagem("Erro de conexão.");
     }
-  };
-
-  const enviarPalpite = async () => {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/palpites/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dadosPalpite)
-    });
-
-    if (response.ok) {
-    // Alert simples
-      alert("Palpite registrado com sucesso! Veja no seu perfil.");
-      onClose();
-   }
   };
 
 
@@ -79,7 +65,7 @@ function RatingModal({ jogo, onClose }) {
   const enviarAvaliacao = async () => {
     const payload = { nota, comentario, id_jogo: jogo.id };
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/palpites/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/avaliacoes/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
