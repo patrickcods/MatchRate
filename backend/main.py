@@ -86,8 +86,14 @@ async def obter_tabela():
 
 
 @app.post("/api/v1/palpites/")
-def salvar_palpite(palpite: dict, db: Session = Depends(get_db)):
-    novo = models.Palpite(**palpite)
+def salvar_palpite(palpite: dict, db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
+    novo = models.Palpite(
+        id_usuario=usuario.id,
+        id_jogo=palpite["id_jogo"],
+        jogo_nome=palpite["jogo_nome"],
+        gol_casa=palpite["gol_casa"],
+        gol_fora=palpite["gol_fora"]
+    ) 
     db.add(novo)
     db.commit()
     db.refresh(novo)
