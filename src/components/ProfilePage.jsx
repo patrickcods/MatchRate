@@ -45,7 +45,7 @@ function ProfilePage({ usuario }) {
             {palpites.map((palpite) => (
               <div key={palpite.id} style={{ background: '#1a1a1a', padding: '1rem', borderRadius: '12px', border: '1px solid #333' }}>
                 <p><strong>Partida:</strong> {palpite.jogo_nome}</p>
-                <p><strong>Meu Palpite:</strong> {palpite.placar_casa} x {palpite.placar_fora}</p>
+                <p><strong>Meu Palpite:</strong> {palpite.gol_casa} x {palpite.gol_fora}</p>
               </div>
             ))}
           </div>
