@@ -2,30 +2,48 @@ import React, { useState, useEffect } from 'react';
 
 function ProfilePage({ usuario }) {
   const [palpites, setPalpites] = useState([]);
+  const [carregando, setCarregando] = useState(true); // Adicionado estado de loading
 
   useEffect(() => {
-    // Buscar palpites do usuário logado
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setCarregando(false);
+      return;
+    }
+
     fetch(`${import.meta.env.VITE_API_URL}/api/v1/palpites/me`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     })
     .then(res => res.json())
-    .then(data => setPalpites(data))
-    .catch(err => console.error("Erro ao buscar histórico:", err));
+    .then(data => {
+      setPalpites(data);
+      setCarregando(false); // Finaliza o loading
+    })
+    .catch(err => {
+      console.error("Erro ao buscar palpites:", err);
+      setCarregando(false);
+    });
   }, []);
 
   return (
     <div style={{ padding: '2rem', color: '#fff' }}>
       <header style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '2rem' }}>Meu Perfil</h2>
-        <p style={{ color: '#888' }}>Olá, {usuario?.nome}</p>
+        <p style={{ color: '#888' }}>Olá, {usuario?.nome || 'Convidado'}</p>
       </header>
 
       <section>
         <h3 style={{ color: '#6c189c', marginBottom: '1rem' }}>Meus Palpites</h3>
-        {palpites.length > 0 ? (
+        
+        {carregando ? (
+          <p style={{ color: '#888' }}>Carregando seus palpites...</p>
+        ) : palpites.length > 0 ? (
           <div style={{ display: 'grid', gap: '1rem' }}>
             {palpites.map((palpite) => (
-              <div key={palpite.id} style={{ background: '#1a1a1a', padding: '1rem', borderRadius: '12px' }}>
+              <div key={palpite.id} style={{ background: '#1a1a1a', padding: '1rem', borderRadius: '12px', border: '1px solid #333' }}>
                 <p><strong>Partida:</strong> {palpite.jogo_nome}</p>
                 <p><strong>Meu Palpite:</strong> {palpite.placar_casa} x {palpite.placar_fora}</p>
               </div>
