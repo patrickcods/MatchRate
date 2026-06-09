@@ -17,23 +17,53 @@ function RatingModal({ jogo, onClose }) {
     setNota(novaNota === nota ? (isHalf ? index : nota) : novaNota);
   };
 
+  
   const salvarPalpite = async () => {
     if (golCasa === '' || golFora === '') return;
+    
+    const token = localStorage.getItem('token');
+    
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/palpites/', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/palpites/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Obrigatório agora!
+        },
         body: JSON.stringify({
           id_jogo: jogo.id,
-          gol_casa: Number(golCasa),
-          gol_fora: Number(golFora)
+          jogo_nome: `${timeCasa} vs ${timeFora}`, // Inclua isso para facilitar a listagem no perfil
+          placar_casa: Number(golCasa),
+          placar_fora: Number(golFora)
         })
       });
-      if (response.ok) setPalpiteSalvo(true);
+
+      if (response.ok) {
+        setPalpiteSalvo(true);
+        setMensagem("Palpite registrado com sucesso!");
+      } else {
+        setMensagem("Erro ao salvar palpite.");
+      }
     } catch (error) {
       console.error("Erro ao salvar palpite:", error);
+      setMensagem("Erro de conexão.");
     }
   };
+
+  const enviarPalpite = async () => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/palpites/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dadosPalpite)
+    });
+
+    if (response.ok) {
+    // Alert simples
+      alert("Palpite registrado com sucesso! Veja no seu perfil.");
+      onClose();
+   }
+  };
+
 
   const compartilhar = () => {
     const texto = `Meu palpite para ${timeCasa} x ${timeFora} é ${golCasa} x ${golFora}! Faz o teu em https://match-rate-amber.vercel.app/ 🏆`;
@@ -49,7 +79,7 @@ function RatingModal({ jogo, onClose }) {
   const enviarAvaliacao = async () => {
     const payload = { nota, comentario, id_jogo: jogo.id };
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/avaliacoes/', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/palpites/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
