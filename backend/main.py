@@ -18,7 +18,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://match-rate-amber.vercel.app"],
+    allow_origins=["https://matchrate.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
