@@ -1,18 +1,18 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func, text, inspect
 from database import engine, get_db
 import models, schemas
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func
 import os
 import httpx
 from dotenv import load_dotenv
-load_dotenv()
 from auth import hash_senha, verificar_senha, criar_token, get_usuario_atual
 from fastapi.security import OAuth2PasswordRequestForm
 import json
 from datetime import datetime
 
+load_dotenv()
 
 app = FastAPI()
 
@@ -24,7 +24,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-models.Base.metadata.create_all(bind=engine)
+# ---------------------------------------------------------
+# FUNÇÃO DE MIGRAÇÃO AUTOMÁTICA DO BANCO DE DADOS
+# ---------------------------------------------------------
+def init_db():
+    models.Base.metadata.create_all(bind=engine)
+    
+    # Verifica e adiciona colunas faltantes na tabela 'palpites'
+    inspector = inspect(engine)
+    if 'palpites' in inspector.get_table_names():
+        columns = [c['name'] for c in inspector.get_columns('palpites')]
+        with engine.connect() as conn:
+            try:
+                if 'id_usuario' not in columns:
+                    conn.execute(text("ALTER TABLE palpites ADD COLUMN id_usuario INTEGER REFERENCES usuarios(id)"))
+                if 'jogo_nome' not in columns:
+                    conn.execute(text("ALTER TABLE palpites ADD COLUMN jogo_nome VARCHAR"))
+                conn.commit()
+            except Exception as e:
+                print(f"Erro na migração do banco: {e}")
+init_db()
+
 
 @app.post("/api/v1/avaliacoes/", response_model=schemas.AvaliacaoResponse)
 def salvar_avaliacao(avaliacao: schemas.AvaliacaoCreate, db: Session = Depends(get_db)):
@@ -56,8 +76,6 @@ def ranking(db: Session = Depends(get_db)):
 
     return [{"id_jogo": r.id_jogo, "media": round(r.media, 1), "total_votos": r.total_votos} for r in resultado]
 
-
-
 @app.get("/api/v1/jogos")
 async def listar_jogos():
     try:
@@ -84,13 +102,12 @@ async def obter_tabela():
         )
         return response.json()
 
-
 @app.post("/api/v1/palpites/")
 def salvar_palpite(palpite: dict, db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
     novo = models.Palpite(
         id_usuario=usuario.id,
         id_jogo=palpite["id_jogo"],
-        jogo_nome=palpite["jogo_nome"],
+        jogo_nome=palpite.get("jogo_nome", ""), # Usa .get para evitar erros se a chave não existir
         gol_casa=palpite["gol_casa"],
         gol_fora=palpite["gol_fora"]
     ) 
@@ -98,7 +115,6 @@ def salvar_palpite(palpite: dict, db: Session = Depends(get_db), usuario = Depen
     db.commit()
     db.refresh(novo)
     return novo
-
 
 @app.post("/api/v1/auth/cadastro")
 def cadastro(dados: dict, db: Session = Depends(get_db)):
@@ -128,7 +144,6 @@ def me(usuario = Depends(get_usuario_atual)):
 
 @app.post("/api/v1/simulacoes/")
 def salvar_simulacao(dados: dict, db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
-    # Verifica se já tem simulação salva e atualiza
     existente = db.query(models.Simulacao).filter(models.Simulacao.usuario_id == usuario.id).first()
     if existente:
         existente.campeao_nome = dados["campeao_nome"]
@@ -193,9 +208,7 @@ def ranking_campeoes(db: Session = Depends(get_db)):
         for r in resultado
     ]
 
-
 if __name__ == "__main__":
     import uvicorn
-    import os
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
