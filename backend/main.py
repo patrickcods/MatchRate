@@ -24,26 +24,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------------------------------------------------------
-# FUNÇÃO DE MIGRAÇÃO AUTOMÁTICA DO BANCO DE DADOS
-# ---------------------------------------------------------
-def init_db():
-    models.Base.metadata.create_all(bind=engine)
+def resetar_tabela_palpites():
+    try:
+        models.Palpite.__table__.drop(engine, checkfirst=True)
+        print("Tabela 'palpites' antiga apagada com sucesso.")
+    except Exception as e:
+        print(f"A tabela não existia ou não pôde ser apagada: {e}")
     
-    # Verifica e adiciona colunas faltantes na tabela 'palpites'
-    inspector = inspect(engine)
-    if 'palpites' in inspector.get_table_names():
-        columns = [c['name'] for c in inspector.get_columns('palpites')]
-        with engine.connect() as conn:
-            try:
-                if 'id_usuario' not in columns:
-                    conn.execute(text("ALTER TABLE palpites ADD COLUMN id_usuario INTEGER REFERENCES usuarios(id)"))
-                if 'jogo_nome' not in columns:
-                    conn.execute(text("ALTER TABLE palpites ADD COLUMN jogo_nome VARCHAR"))
-                conn.commit()
-            except Exception as e:
-                print(f"Erro na migração do banco: {e}")
-init_db()
+    models.Base.metadata.create_all(bind=engine)
+    print("Tabelas verificadas/criadas com sucesso.")
+
+resetar_tabela_palpites()
 
 
 @app.post("/api/v1/avaliacoes/", response_model=schemas.AvaliacaoResponse)
