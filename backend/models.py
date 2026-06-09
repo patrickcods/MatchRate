@@ -13,7 +13,9 @@ class Avaliacao(Base):
 class Palpite(Base):
     __tablename__ = "palpites"
     id = Column(Integer, primary_key=True, index=True)
+    id_usuario = Column(Integer, ForeignKey("usuarios.id"), index=True)
     id_jogo = Column(Integer, index=True)
+    jogo_nome = Column(String)
     gol_casa = Column(Integer)
     gol_fora = Column(Integer)
     criado_em = Column(DateTime, default=datetime.utcnow)
