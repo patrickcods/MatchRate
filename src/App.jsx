@@ -31,8 +31,6 @@ function App() {
     setUsuario(null);
     localStorage.removeItem('token'); 
   };
- 
-
 
 
  useEffect(() => {
