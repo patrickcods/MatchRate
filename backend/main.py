@@ -163,6 +163,10 @@ def minha_simulacao(db: Session = Depends(get_db), usuario = Depends(get_usuario
 def health_check_head():
     return {"status": "online"}
 
+@app.get("/api/v1/palpites/me")
+def meus_palpites(db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
+    return db.query(models.Palpite).filter(models.Palpite.id_usuario == usuario.id).all()
+
 @app.get("/api/v1/simulacoes/ranking")
 def ranking_campeoes(db: Session = Depends(get_db)):
     resultado = db.query(

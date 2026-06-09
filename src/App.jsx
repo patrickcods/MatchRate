@@ -5,7 +5,8 @@ import StandingsTable from './components/StandingsTable';
 import BracketSimulator from './components/BracketSimulator';
 import AuthModal from './components/AuthModal';
 import { Eye, EyeOff } from 'lucide-react';
-import RankingCampeoes from './components/RankingCampeoes'
+import RankingCampeoes from './components/RankingCampeoes';
+import ProfilePage from './components/ProfilePage';
 
 
 function App() {
@@ -14,10 +15,25 @@ function App() {
   const [pagina, setPagina] = useState('home');
   const [usuario, setUsuario] = useState(null); 
   const [mostrarAuth, setMostrarAuth] = useState(false);
+  const styles = {
+    navButton: {
+      marginTop: '15px',
+      padding: '8px 20px',
+      borderRadius: '20px',
+      border: '1px solid #6c189c',
+      backgroundColor: 'transparent',
+      color: '#a78bfa',
+      cursor: 'pointer',
+      fontWeight: 'bold'
+    }
+  };
   const logout = () => {
     setUsuario(null);
     localStorage.removeItem('token'); 
   };
+ 
+
+
 
  useEffect(() => {
   const token = localStorage.getItem('token')
@@ -54,6 +70,7 @@ function App() {
     <h1 style={{ color: '#ffffff', fontSize: '5rem', fontWeight: '900', margin: 15 }}>
       Match<span style={{ color: '#6c189c' }}>Rate</span>
     </h1>
+      
     <p style={{ color: '#888', marginTop: '1.8rem', fontSize: '1.1rem' }}>
       Avalie os jogos da Copa do Mundo 2026
     </p>
@@ -71,6 +88,12 @@ function App() {
         </button>
       )}
     </div>
+    {/*Adicionado agora*/}
+    {usuario && (
+           <button onClick={() => setPagina('perfil')} style={styles.navButton}>
+             Meu Perfil
+           </button>
+        )}
   </header>
 
   {mostrarAuth && (
@@ -93,8 +116,10 @@ function App() {
           <RankingCampeoes />
           <MatchList jogos={jogos} onSelecionar={setJogoSelecionado} />
         </>
+      ) : pagina === 'simulador' ? (
+        <BracketSimulator />
       ) : (
-        <BracketSimulator usuario={usuario} />
+        <ProfilePage usuario={usuario} /> // Rota do Perfil
       )}
       
       {/* MODAL DE AVALIAÇÃO */}
