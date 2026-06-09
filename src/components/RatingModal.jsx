@@ -34,9 +34,11 @@ function RatingModal({ jogo, onClose }) {
           id_jogo: jogo.id,
           jogo_nome: `${timeCasa} vs ${timeFora}`,
           gol_casa: Number(golCasa),
-          placar_fora: Number(golFora)
+          gol_fora: Number(golFora)
         })
       });
+
+      // ... resto do código igual
 
       if (response.ok) {
         setPalpiteSalvo(true);
