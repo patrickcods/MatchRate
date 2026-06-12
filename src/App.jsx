@@ -7,6 +7,7 @@ import AuthModal from './components/AuthModal';
 import { Eye, EyeOff } from 'lucide-react';
 import RankingCampeoes from './components/RankingCampeoes';
 import ProfilePage from './components/ProfilePage';
+import RankingJogos from './components/RankingJogos';
 
 
 function App() {
@@ -112,6 +113,7 @@ function App() {
         <>
           <StandingsTable />
           <RankingCampeoes />
+          <RankingJogos jogos={jogos} />
           <MatchList jogos={jogos} onSelecionar={setJogoSelecionado} />
         </>
       ) : pagina === 'simulador' ? (
