@@ -112,8 +112,17 @@ function App() {
       {pagina === 'home' ? (
         <>
           <StandingsTable />
-          <RankingCampeoes />
-          <RankingJogos jogos={jogos} />
+          
+          {/* OS DOIS RANKINGS LADO A LADO */}
+          <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '1000px', margin: '0 auto 2rem auto' }}>
+            <div style={{ flex: '1 1 400px' }}>
+              <RankingCampeoes />
+            </div>
+            <div style={{ flex: '1 1 400px' }}>
+              <RankingJogos jogos={jogos} />
+            </div>
+          </div>
+          {/* LISTA DE JOGOS (Cards de Avaliar e Próximos) */}
           <MatchList jogos={jogos} onSelecionar={setJogoSelecionado} />
         </>
       ) : pagina === 'simulador' ? (
@@ -121,7 +130,6 @@ function App() {
       ) : (
         <ProfilePage usuario={usuario} /> // Rota do Perfil
       )}
-      
       {/* MODAL DE AVALIAÇÃO */}
       {jogoSelecionado && (
         <RatingModal 

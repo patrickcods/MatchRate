@@ -25,7 +25,7 @@ function MatchCard({ jogo, onSelecionar }) {
 
   const corBorda = aoVivo ? '#16a34a' : '#222'
   const corHover = aoVivo ? '#16a34a' : encerrado ? '#333' : '#6c189c'
-  const opacidade = encerrado ? 0.5 : 1
+  const opacidade = 1
 
   const badgeStatus = aoVivo
     ? { texto: '● AO VIVO', cor: '#16a34a' }
