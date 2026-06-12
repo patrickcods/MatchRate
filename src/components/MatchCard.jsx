@@ -35,13 +35,13 @@ function MatchCard({ jogo, onSelecionar }) {
 
   return (
     <div
-      onClick={() => !encerrado && onSelecionar(jogo)}
+      onClick={() => onSelecionar(jogo)}
       style={{
         backgroundColor: '#141414',
         border: `1px solid ${corBorda}`,
         borderRadius: '12px',
         padding: '1.25rem',
-        cursor: encerrado ? 'default' : 'pointer',
+        cursor: 'pointer',
         width: '300px',
         transition: 'border-color 0.2s, opacity 0.2s',
         opacity: opacidade

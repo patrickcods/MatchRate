@@ -98,25 +98,26 @@ function RatingModal({ jogo, onClose }) {
         <h3 style={{ textAlign: 'center', marginTop: 0 }}>{timeCasa} vs {timeFora}</h3>
 
         {/* PALPITE */}
-        <div style={{ backgroundColor: '#1a1a1a', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid #2a2a2a' }}>
-          <p style={{ color: '#6c189c', fontWeight: 'bold', fontSize: '0.85rem', margin: '0 0 1rem 0', textAlign: 'center' }}>
-            PALPITE DE PLACAR
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-            <div style={{ textAlign: 'center' }}>
-              {jogo.homeTeam.crest && <img src={jogo.homeTeam.crest} style={{ width: '32px', marginBottom: '6px' }} />}
-              <p style={{ color: '#888', fontSize: '0.75rem', margin: '0 0 6px 0' }}>{timeCasa}</p>
-              <input type="number" min="0" max="20" value={golCasa}
-                onChange={e => setGolCasa(e.target.value)} style={inputPlacar} />
+       {jogo.status !== 'FINISHED' && (
+          <div style={{ backgroundColor: '#1a1a1a', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid #2a2a2a' }}>
+            <p style={{ color: '#6c189c', fontWeight: 'bold', fontSize: '0.85rem', margin: '0 0 1rem 0', textAlign: 'center' }}>
+              PALPITE DE PLACAR
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+              <div style={{ textAlign: 'center' }}>
+                {jogo.homeTeam.crest && <img src={jogo.homeTeam.crest} style={{ width: '32px', marginBottom: '6px' }} />}
+                <p style={{ color: '#888', fontSize: '0.75rem', margin: '0 0 6px 0' }}>{timeCasa}</p>
+                <input type="number" min="0" max="20" value={golCasa}
+                  onChange={e => setGolCasa(e.target.value)} style={inputPlacar} />
+              </div>
+              <span style={{ color: '#555', fontSize: '1.5rem', fontWeight: 'bold' }}>x</span>
+              <div style={{ textAlign: 'center' }}>
+                {jogo.awayTeam.crest && <img src={jogo.awayTeam.crest} style={{ width: '32px', marginBottom: '6px' }} />}
+                <p style={{ color: '#888', fontSize: '0.75rem', margin: '0 0 6px 0' }}>{timeFora}</p>
+                <input type="number" min="0" max="20" value={golFora}
+                  onChange={e => setGolFora(e.target.value)} style={inputPlacar} />
+              </div>
             </div>
-            <span style={{ color: '#555', fontSize: '1.5rem', fontWeight: 'bold' }}>x</span>
-            <div style={{ textAlign: 'center' }}>
-              {jogo.awayTeam.crest && <img src={jogo.awayTeam.crest} style={{ width: '32px', marginBottom: '6px' }} />}
-              <p style={{ color: '#888', fontSize: '0.75rem', margin: '0 0 6px 0' }}>{timeFora}</p>
-              <input type="number" min="0" max="20" value={golFora}
-                onChange={e => setGolFora(e.target.value)} style={inputPlacar} />
-            </div>
-          </div>
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
             <button onClick={salvarPalpite} disabled={golCasa === '' || golFora === '' || palpiteSalvo}
@@ -137,6 +138,7 @@ function RatingModal({ jogo, onClose }) {
             </button>
           </div>
         </div>
+       )}
 
         {/* AVALIAÇÃO */}
         <p style={{ color: '#888', fontSize: '0.85rem', fontWeight: 'bold', margin: '0 0 0.75rem 0', textAlign: 'center' }}>
