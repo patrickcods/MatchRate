@@ -50,8 +50,11 @@ resetar_tabela_palpites()
 
 
 @app.post("/api/v1/avaliacoes/", response_model=schemas.AvaliacaoResponse)
-def salvar_avaliacao(avaliacao: schemas.AvaliacaoCreate, db: Session = Depends(get_db)):
-    nova = models.Avaliacao(**avaliacao.model_dump(), id_usuario=usuario.id)
+def salvar_avaliacao(avaliacao: schemas.AvaliacaoCreate, db: Session = Depends(get_db), usuario: models.Usuario = Depends(get_usuario_atual)):
+    dados_avaliacao = avaliacao.model_dump()
+    dados_avaliacao["id_usuario"] = usuario.id
+    nova = models.Avaliacao(**dados_avaliacao)
+
     db.add(nova)
 
     try:
