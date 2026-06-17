@@ -5,6 +5,7 @@ from database import Base
 class Avaliacao(Base):
     __tablename__ = "avaliacoes"
     id = Column(Integer, primary_key=True, index=True)
+    id_usuario = Column(Integer, ForeignKey("usuarios.id"), nullable=True, index=True)
     id_jogo = Column(Integer, index=True)
     nota = Column(Float)
     comentario = Column(String)
