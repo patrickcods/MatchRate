@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, DateTime, String, Text, ForeignKey
+from sqlalchemy import Column, Integer, Float, DateTime, String, Text, ForeignKey, UniqueConstraint
 from datetime import datetime
 from database import Base
 
@@ -9,7 +9,7 @@ class Avaliacao(Base):
     nota = Column(Float)
     comentario = Column(String)
     criado_em = Column(DateTime, default=datetime.utcnow)
-    
+
     __table_args__ = (
         UniqueConstraint('id_usuario', 'id_jogo', name='_usuario_jogo_uc'),
     )
