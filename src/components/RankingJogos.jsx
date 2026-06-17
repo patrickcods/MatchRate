@@ -18,6 +18,13 @@ function RankingJogos({ jogos }) {
     fetch(`${import.meta.env.VITE_API_URL}/api/v1/jogos/ranking`)
       .then(res => res.json())
       .then(data => {
+
+        if (!Array.isArray(data)) {
+          console.warn("O ranking não retornou uma lista válida:", data);
+          setRanking([]);
+          return;
+        }
+
         const rankingCompleto = data.map(item => {
           const jogoEncontrado = jogos.find(j => j.id === item.id_jogo);
           return {
@@ -28,13 +35,16 @@ function RankingJogos({ jogos }) {
 
         setRanking(rankingCompleto.slice(0, 5));
       })
-      .catch(err => console.error("Erro ao buscar ranking de jogos:", err));
+      .catch(err => {
+        console.error("Erro ao buscar ranking de jogos:", err);
+        setRanking([]);
+      })
   }, [jogos]);
 
   if (ranking.length === 0) return null;
 
   return (
-    <div style={{ marginBottom: '3rem', backgroundColor: '#141414', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+    <div style={{backgroundColor: '#141414', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', height: '100%' }}>
       <h3 style={{ color: '#ffc107', textAlign: 'center', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
         <FaStar /> Melhores Jogos da Copa <FaStar />
       </h3>
