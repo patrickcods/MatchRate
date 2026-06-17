@@ -11,10 +11,22 @@ from auth import hash_senha, verificar_senha, criar_token, get_usuario_atual
 from fastapi.security import OAuth2PasswordRequestForm
 import json
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 
 load_dotenv()
 
 app = FastAPI()
+def resetar_tabela_avaliacoes():
+    try:
+        models.Avaliacao.__table__.drop(engine, checkfirst=True)
+        print("Tabela 'avaliacoes' antiga apagada com sucesso.")
+    except Exception as e:
+        print(f"A tabela não existia ou não pôde ser apagada: {e}")
+    
+    models.Base.metadata.create_all(bind=engine)
+    print("Tabelas verificadas/criadas com sucesso.")
+
+resetar_tabela_avaliacoes()
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,11 +51,16 @@ resetar_tabela_palpites()
 
 @app.post("/api/v1/avaliacoes/", response_model=schemas.AvaliacaoResponse)
 def salvar_avaliacao(avaliacao: schemas.AvaliacaoCreate, db: Session = Depends(get_db)):
-    nova = models.Avaliacao(**avaliacao.model_dump())
+    nova = models.Avaliacao(**avaliacao.model_dump(), id_usuario=usuario.id)
     db.add(nova)
-    db.commit()
-    db.refresh(nova)
-    return nova
+
+    try:
+        db.commit()
+        db.refresh(nova)
+        return nova
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400,detail="Você já avaliou este jogo!")
 
 @app.get("/api/v1/avaliacoes/{jogo_id}/media")
 def obter_media(jogo_id: int, db: Session = Depends(get_db)):

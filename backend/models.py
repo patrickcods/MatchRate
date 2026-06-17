@@ -9,6 +9,10 @@ class Avaliacao(Base):
     nota = Column(Float)
     comentario = Column(String)
     criado_em = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        UniqueConstraint('id_usuario', 'id_jogo', name='_usuario_jogo_uc'),
+    )
 
 class Palpite(Base):
     __tablename__ = "palpites"

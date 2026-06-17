@@ -3,24 +3,29 @@ import { FaStar } from 'react-icons/fa';
 
 function RankingJogos({ jogos }) {
   const [ranking, setRanking] = useState([]);
+  const fases = {
+    GROUP_STAGE: 'Fase de Grupos',
+    ROUND_OF_16: 'Oitavas de Final',
+    QUARTER_FINALS: 'Quartas de Final',
+    SEMI_FINALS: 'Semifinal',
+    THIRD_PLACE: 'Terceiro Lugar',
+    FINAL: 'Final'
+  };
 
   useEffect(() => {
-    // Só tenta cruzar os dados se já tivermos carregado a lista de jogos da API externa
     if (jogos.length === 0) return;
 
     fetch(`${import.meta.env.VITE_API_URL}/api/v1/jogos/ranking`)
       .then(res => res.json())
       .then(data => {
-        // Cruza o ID retornado pelo seu banco com os dados do Football-Data
         const rankingCompleto = data.map(item => {
           const jogoEncontrado = jogos.find(j => j.id === item.id_jogo);
           return {
             ...item,
             jogoData: jogoEncontrado
           };
-        }).filter(item => item.jogoData); // Ignora se houver algum ID fantasma
+        }).filter(item => item.jogoData);
 
-        // Pega apenas o Top 5 para não poluir a tela
         setRanking(rankingCompleto.slice(0, 5));
       })
       .catch(err => console.error("Erro ao buscar ranking de jogos:", err));

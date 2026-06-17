@@ -66,15 +66,23 @@ function RatingModal({ jogo, onClose }) {
 
   const enviarAvaliacao = async () => {
     const payload = { nota, comentario, id_jogo: jogo.id };
+    const token = localStorage.getItem('token');
+
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/avaliacoes/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(payload)
       });
+
       if (response.ok) {
         setMensagem("Avaliação salva com sucesso!");
         setTimeout(() => onClose(), 1500);
+      } else if (response.status === 400) {
+        setMensagem("Você já avaliou este jogo!");
       } else {
         setMensagem("Erro ao salvar, tente novamente.");
       }
