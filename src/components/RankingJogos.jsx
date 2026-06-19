@@ -2,15 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
 
 function RankingJogos({ jogos }) {
-  const [ranking, setRanking] = useState([]);
-  const fases = {
-    GROUP_STAGE: 'Fase de Grupos',
-    ROUND_OF_16: 'Oitavas de Final',
-    QUARTER_FINALS: 'Quartas de Final',
-    SEMI_FINALS: 'Semifinal',
-    THIRD_PLACE: 'Terceiro Lugar',
-    FINAL: 'Final'
-  };
+  const [rankingCompleto, setRankingCompleto] = useState([]);
+  const [expandido, setExpandido] = useState(false);
+  const LIMITE_INICIAL = 5;
 
   useEffect(() => {
     if (jogos.length === 0) return;
@@ -18,41 +12,45 @@ function RankingJogos({ jogos }) {
     fetch(`${import.meta.env.VITE_API_URL}/api/v1/jogos/ranking`)
       .then(res => res.json())
       .then(data => {
-
         if (!Array.isArray(data)) {
           console.warn("O ranking não retornou uma lista válida:", data);
-          setRanking([]);
+          setRankingCompleto([]);
           return;
         }
 
-        const rankingCompleto = data.map(item => {
+        const lista = data.map(item => {
           const jogoEncontrado = jogos.find(j => j.id === item.id_jogo);
-          return {
-            ...item,
-            jogoData: jogoEncontrado
-          };
+          return { ...item, jogoData: jogoEncontrado };
         }).filter(item => item.jogoData);
 
-        setRanking(rankingCompleto.slice(0, 5));
+        setRankingCompleto(lista);
       })
       .catch(err => {
         console.error("Erro ao buscar ranking de jogos:", err);
-        setRanking([]);
+        setRankingCompleto([]);
       })
   }, [jogos]);
 
-  if (ranking.length === 0) return null;
+  if (rankingCompleto.length === 0) return null;
+
+  const rankingExibido = expandido ? rankingCompleto : rankingCompleto.slice(0, LIMITE_INICIAL);
+  const temMais = rankingCompleto.length > LIMITE_INICIAL;
 
   return (
-    <div style={{backgroundColor: '#141414', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', height: '100%' }}>
+    <div style={{ backgroundColor: '#141414', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', height: '100%' }}>
       <h3 style={{ color: '#ffc107', textAlign: 'center', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
         <FaStar /> Melhores Jogos da Copa <FaStar />
       </h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {ranking.map((item, index) => {
+      <div style={{
+        display: 'flex', flexDirection: 'column', gap: '10px',
+        maxHeight: expandido ? '500px' : 'none',
+        overflowY: expandido ? 'auto' : 'visible',
+        paddingRight: expandido ? '4px' : '0'
+      }}>
+        {rankingExibido.map((item, index) => {
           const timeCasa = item.jogoData.homeTeam.shortName || item.jogoData.homeTeam.name || 'Time A';
           const timeFora = item.jogoData.awayTeam.shortName || item.jogoData.awayTeam.name || 'Time B';
-          
+
           return (
             <div key={item.id_jogo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1a1a1a', padding: '10px 20px', borderRadius: '8px', border: '1px solid #2a2a2a' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -68,6 +66,20 @@ function RankingJogos({ jogos }) {
           )
         })}
       </div>
+
+      {temMais && (
+        <button
+          onClick={() => setExpandido(!expandido)}
+          style={{
+            width: '100%', marginTop: '1rem', padding: '10px',
+            backgroundColor: 'transparent', border: '1px solid #333',
+            borderRadius: '8px', color: '#a78bfa', cursor: 'pointer',
+            fontSize: '0.85rem', fontWeight: 'bold'
+          }}
+        >
+          {expandido ? `▲ Ver menos` : `▼ Ver todos os ${rankingCompleto.length} jogos`}
+        </button>
+      )}
     </div>
   );
 }
