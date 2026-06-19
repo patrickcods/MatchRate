@@ -19,6 +19,15 @@ app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
 
+with engine.connect() as conn:
+    try:
+        conn.execute(text("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS avatar_url VARCHAR"))
+        conn.execute(text("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS bio VARCHAR"))
+        conn.commit()
+        print("Colunas avatar_url e bio adicionadas com sucesso.")
+    except Exception as e:
+        print(f"Erro ao adicionar colunas: {e}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://match-rate-amber.vercel.app"],
