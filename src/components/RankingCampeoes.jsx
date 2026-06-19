@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 function RankingCampeoes() {
   const [ranking, setRanking] = useState([])
   const [expandido, setExpandido] = useState(false)
-  const LIMITE_INICIAL = 4
+  const LIMITE_INICIAL = 5
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/v1/simulacoes/ranking`)
