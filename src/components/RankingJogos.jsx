@@ -37,15 +37,15 @@ function RankingJogos({ jogos }) {
   const temMais = rankingCompleto.length > LIMITE_INICIAL;
 
   return (
-    <div style={{ backgroundColor: '#141414', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', height: '100%' }}>
+    <div style={{ backgroundColor: '#141414', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
       <h3 style={{ color: '#ffc107', textAlign: 'center', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
         <FaStar /> Melhores Jogos da Copa <FaStar />
       </h3>
       <div style={{
         display: 'flex', flexDirection: 'column', gap: '10px',
-        maxHeight: expandido ? '500px' : 'none',
-        overflowY: expandido ? 'auto' : 'visible',
-        paddingRight: expandido ? '4px' : '0'
+        maxHeight: expandido ? 'min(500px, 100%)' : 'none',
+        overflowY: expandido && rankingCompleto.length > 9 ? 'auto' : 'visible',
+        paddingRight: expandido && rankingCompleto.length > 9 ? '4px' : '0'
       }}>
         {rankingExibido.map((item, index) => {
           const timeCasa = item.jogoData.homeTeam.shortName || item.jogoData.homeTeam.name || 'Time A';
