@@ -87,7 +87,6 @@ function App() {
         </button>
       )}
     </div>
-    {/*Adicionado agora*/}
     {usuario && (
            <button onClick={() => setPagina('perfil')} style={styles.navButton}>
              Meu Perfil
