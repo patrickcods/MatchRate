@@ -17,12 +17,12 @@ const GRUPOS_DADOS = {
 const TODOS_TIMES = Object.values(GRUPOS_DADOS).flat();
 
 const AVATARES_PRONTOS = [
-  'https://api.dicebear.com/7.x/shapes/svg?seed=1',
-  'https://api.dicebear.com/7.x/shapes/svg?seed=2',
-  'https://api.dicebear.com/7.x/shapes/svg?seed=3',
-  'https://api.dicebear.com/7.x/shapes/svg?seed=4',
-  'https://api.dicebear.com/7.x/shapes/svg?seed=5',
-  'https://api.dicebear.com/7.x/shapes/svg?seed=6',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=1',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=2',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=3',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=4',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=5',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=6',
 ];
 
 function ProfilePage({ usuario, onAtualizarUsuario }) {
