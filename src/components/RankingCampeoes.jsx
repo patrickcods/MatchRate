@@ -23,6 +23,20 @@ function RankingCampeoes() {
         🏆 Quem a comunidade acha que vai ganhar?
       </h2>
 
+      {expandido && temMais && (
+        <button
+          onClick={() => setExpandido(false)}
+          style={{
+            width: '100%', marginBottom: '1rem', padding: '10px',
+            backgroundColor: 'transparent', border: '1px solid #333',
+            borderRadius: '8px', color: '#a78bfa', cursor: 'pointer',
+            fontSize: '0.85rem', fontWeight: 'bold'
+          }}
+        >
+          ▲ Ver menos
+        </button>
+      )}
+
       <div style={{
         maxHeight: expandido && ranking.length > 9 ? '500px' : 'none',
         overflowY: expandido && ranking.length > 9 ? 'auto' : 'visible',
@@ -48,9 +62,9 @@ function RankingCampeoes() {
         ))}
       </div>
 
-      {temMais && (
+      {temMais && !expandido && (
         <button
-          onClick={() => setExpandido(!expandido)}
+          onClick={() => setExpandido(true)}
           style={{
             width: '100%', marginTop: '0.5rem', padding: '10px',
             backgroundColor: 'transparent', border: '1px solid #333',
@@ -58,7 +72,7 @@ function RankingCampeoes() {
             fontSize: '0.85rem', fontWeight: 'bold'
           }}
         >
-          {expandido ? '▲ Ver menos' : `▼ Ver todos os ${ranking.length} países`}
+          ▼ Ver todos os {ranking.length} países
         </button>
       )}
 

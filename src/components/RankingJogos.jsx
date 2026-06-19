@@ -4,7 +4,7 @@ import { FaStar } from 'react-icons/fa';
 function RankingJogos({ jogos }) {
   const [rankingCompleto, setRankingCompleto] = useState([]);
   const [expandido, setExpandido] = useState(false);
-  const LIMITE_INICIAL = 4;
+  const LIMITE_INICIAL = 5;
 
   useEffect(() => {
     if (jogos.length === 0) return;
@@ -41,6 +41,20 @@ function RankingJogos({ jogos }) {
       <h3 style={{ color: '#ffc107', textAlign: 'center', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
         <FaStar /> Melhores Jogos da Copa <FaStar />
       </h3>
+
+      {expandido && temMais && (
+        <button
+          onClick={() => setExpandido(false)}
+          style={{
+            width: '100%', marginBottom: '1rem', padding: '10px',
+            backgroundColor: 'transparent', border: '1px solid #333',
+            borderRadius: '8px', color: '#a78bfa', cursor: 'pointer',
+            fontSize: '0.85rem', fontWeight: 'bold'
+          }}
+        >
+          ▲ Ver menos
+        </button>
+      )}
       <div style={{
         display: 'flex', flexDirection: 'column', gap: '10px',
         maxHeight: expandido ? 'min(500px, 100%)' : 'none',
@@ -67,9 +81,9 @@ function RankingJogos({ jogos }) {
         })}
       </div>
 
-      {temMais && (
+      {temMais && !expandido && (
         <button
-          onClick={() => setExpandido(!expandido)}
+          onClick={() => setExpandido(true)}
           style={{
             width: '100%', marginTop: '1rem', padding: '10px',
             backgroundColor: 'transparent', border: '1px solid #333',
@@ -77,7 +91,7 @@ function RankingJogos({ jogos }) {
             fontSize: '0.85rem', fontWeight: 'bold'
           }}
         >
-          {expandido ? `▲ Ver menos` : `▼ Ver todos os ${rankingCompleto.length} jogos`}
+          ▼ Ver todos os {rankingCompleto.length} jogos
         </button>
       )}
     </div>
