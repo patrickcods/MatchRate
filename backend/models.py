@@ -31,6 +31,8 @@ class Usuario(Base):
     nome = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     senha_hash = Column(String, nullable=False)
+    avatar_url = Column(String, nullable=True)
+    bio = Column(String, nullable=True)
     criado_em = Column(DateTime, default=datetime.utcnow)
 
 class Simulacao(Base):

@@ -127,7 +127,7 @@ function App() {
       ) : pagina === 'simulador' ? (
         <BracketSimulator />
       ) : (
-        <ProfilePage usuario={usuario} /> // Rota do Perfil
+        <ProfilePage usuario={usuario} onAtualizarUsuario={setUsuario} />
       )}
       {/* MODAL DE AVALIAÇÃO */}
       {jogoSelecionado && (

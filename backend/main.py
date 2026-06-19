@@ -16,17 +16,8 @@ from sqlalchemy.exc import IntegrityError
 load_dotenv()
 
 app = FastAPI()
-def resetar_tabela_avaliacoes():
-    try:
-        models.Avaliacao.__table__.drop(engine, checkfirst=True)
-        print("Tabela 'avaliacoes' antiga apagada com sucesso.")
-    except Exception as e:
-        print(f"A tabela não existia ou não pôde ser apagada: {e}")
-    
-    models.Base.metadata.create_all(bind=engine)
-    print("Tabelas verificadas/criadas com sucesso.")
 
-resetar_tabela_avaliacoes()
+models.Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,
@@ -36,17 +27,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def resetar_tabela_palpites():
-    try:
-        models.Palpite.__table__.drop(engine, checkfirst=True)
-        print("Tabela 'palpites' antiga apagada com sucesso.")
-    except Exception as e:
-        print(f"A tabela não existia ou não pôde ser apagada: {e}")
-    
-    models.Base.metadata.create_all(bind=engine)
-    print("Tabelas verificadas/criadas com sucesso.")
-
-resetar_tabela_palpites()
 
 
 @app.post("/api/v1/avaliacoes/", response_model=schemas.AvaliacaoResponse)
@@ -151,7 +131,10 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
 
 @app.get("/api/v1/auth/me")
 def me(usuario = Depends(get_usuario_atual)):
-    return {"id": usuario.id, "nome": usuario.nome, "email": usuario.email}
+    return {
+        "id": usuario.id, "nome": usuario.nome, "email": usuario.email,
+        "avatar_url": usuario.avatar_url, "bio": usuario.bio
+    }
 
 @app.post("/api/v1/simulacoes/")
 def salvar_simulacao(dados: dict, db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
@@ -218,6 +201,44 @@ def ranking_campeoes(db: Session = Depends(get_db)):
         }
         for r in resultado
     ]
+    
+@app.put("/api/v1/auth/perfil")
+def atualizar_perfil(dados: dict, db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
+    if "nome" in dados and dados["nome"]:
+        usuario.nome = dados["nome"]
+    if "avatar_url" in dados:
+        usuario.avatar_url = dados["avatar_url"]
+    if "bio" in dados:
+        usuario.bio = dados["bio"]
+    db.commit()
+    db.refresh(usuario)
+    return {
+        "id": usuario.id, "nome": usuario.nome, "email": usuario.email,
+        "avatar_url": usuario.avatar_url, "bio": usuario.bio
+    }
+
+@app.put("/api/v1/simulacoes/campeao")
+def atualizar_campeao(dados: dict, db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
+    existente = db.query(models.Simulacao).filter(models.Simulacao.usuario_id == usuario.id).first()
+    if existente:
+        existente.campeao_nome = dados["campeao_nome"]
+        existente.campeao_flag = dados.get("campeao_flag", "")
+        existente.criado_em = datetime.utcnow()
+        db.commit()
+        return {"ok": True}
+    nova = models.Simulacao(
+        usuario_id=usuario.id,
+        campeao_nome=dados["campeao_nome"],
+        campeao_flag=dados.get("campeao_flag", ""),
+        semi="[]", quartas="[]", oitavas="[]"
+    )
+    db.add(nova)
+    db.commit()
+    return {"ok": True}
+
+@app.get("/api/v1/avaliacoes/me")
+def minhas_avaliacoes(db: Session = Depends(get_db), usuario = Depends(get_usuario_atual)):
+    return db.query(models.Avaliacao).filter(models.Avaliacao.id_usuario == usuario.id).all()
 
 if __name__ == "__main__":
     import uvicorn
