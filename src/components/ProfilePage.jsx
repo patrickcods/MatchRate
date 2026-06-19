@@ -25,7 +25,7 @@ const AVATARES_PRONTOS = [
   'https://api.dicebear.com/7.x/adventurer/svg?seed=6',
 ];
 
-function ProfilePage({ usuario, onAtualizarUsuario }) {
+function ProfilePage({ usuario, onAtualizarUsuario, onAtualizarCampeao }) {
   const [palpites, setPalpites] = useState([]);
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [simulacao, setSimulacao] = useState(null);
@@ -88,7 +88,9 @@ function ProfilePage({ usuario, onAtualizarUsuario }) {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ campeao_nome: time.nome, campeao_flag: time.flag })
       });
-      setSimulacao(prev => ({ ...(prev || {}), campeao_nome: time.nome, campeao_flag: time.flag }));
+      const novaSimulacao = { ...(simulacao || {}), campeao_nome: time.nome, campeao_flag: time.flag };
+      setSimulacao(novaSimulacao);
+      onAtualizarCampeao && onAtualizarCampeao(novaSimulacao);
       setTrocandoCampeao(false);
       setBusca('');
     } catch (e) {
@@ -113,7 +115,6 @@ function ProfilePage({ usuario, onAtualizarUsuario }) {
   return (
     <div style={{ padding: '2rem', color: '#fff', maxWidth: '700px', margin: '0 auto' }}>
 
-      {/* CABEÇALHO DO PERFIL */}
       <div style={{ ...cardStyle, marginBottom: '1.5rem', textAlign: 'center', position: 'relative' }}>
         <img
           src={usuario.avatar_url || AVATARES_PRONTOS[0]}
@@ -151,7 +152,6 @@ function ProfilePage({ usuario, onAtualizarUsuario }) {
         )}
       </div>
 
-      {/* MEU CAMPEÃO */}
       <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>
         <h3 style={{ color: '#ffc107', margin: '0 0 1rem 0', fontSize: '1.1rem' }}>🏆 Meu Campeão</h3>
 
@@ -191,7 +191,6 @@ function ProfilePage({ usuario, onAtualizarUsuario }) {
         )}
       </div>
 
-      {/* ESTATÍSTICAS */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
         <div style={{ ...cardStyle, flex: 1, textAlign: 'center' }}>
           <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#a78bfa', margin: '0 0 0.25rem 0' }}>{palpites.length}</p>
@@ -203,7 +202,6 @@ function ProfilePage({ usuario, onAtualizarUsuario }) {
         </div>
       </div>
 
-      {/* MEUS PALPITES */}
       <section style={{ marginBottom: '1.5rem' }}>
         <h3 style={{ color: '#6c189c', marginBottom: '1rem' }}>Meus Palpites</h3>
         {carregando ? (
