@@ -181,6 +181,7 @@ function App() {
           onAtualizarCampeao={(novaSimulacao) => setMeuCampeao(novaSimulacao)}
         />
       )}
+      
       {jogoSelecionado && (
         <RatingModal
           jogo={jogoSelecionado}
