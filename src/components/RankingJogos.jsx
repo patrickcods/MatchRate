@@ -4,7 +4,7 @@ import { FaStar } from 'react-icons/fa';
 function RankingJogos({ jogos }) {
   const [rankingCompleto, setRankingCompleto] = useState([]);
   const [expandido, setExpandido] = useState(false);
-  const LIMITE_INICIAL = 5;
+  const LIMITE_INICIAL = 4;
 
   useEffect(() => {
     if (jogos.length === 0) return;
