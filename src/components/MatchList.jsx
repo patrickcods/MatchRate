@@ -7,19 +7,19 @@ function MatchList({ jogos, onSelecionar }) {
   const labels = { GROUP_STAGE: 'Grupos', LAST_16: 'Oitavas', QUARTER_FINALS: 'Quartas', SEMI_FINALS: 'Semifinal', FINAL: 'Final' };
   const jogosAtuais = jogos || [];
 
-  if (jogosAtuais.length > 0) {
-    console.log("ESTRUTURA DO PRIMEIRO JOGO:", jogosAtuais[0]);
-    console.log("VALOR DO STAGE:", jogosAtuais[0].stage);
-  }
-
   const jogosDaFase = jogosAtuais.filter(j => j.stage === filtro);
-  
-  const jogosEncerrados = jogosDaFase.filter(j => j.status === 'FINISHED');
-  const jogosFuturos = jogosDaFase.filter(j => 
-    j.status === 'TIMED' || 
-    j.status === 'SCHEDULED' || 
-    j.status === 'POSTPONED'
-  );
+
+  const jogosEncerrados = jogosDaFase
+    .filter(j => j.status === 'FINISHED')
+    .sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate)); // mais recente primeiro
+
+  const jogosFuturos = jogosDaFase
+    .filter(j =>
+      j.status === 'TIMED' ||
+      j.status === 'SCHEDULED' ||
+      j.status === 'POSTPONED'
+    )
+    .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate)); // mais próximo primeiro
 
   return (
     <div>
