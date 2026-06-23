@@ -8,16 +8,17 @@ function RatingModal({ jogo, onClose }) {
   const [golCasa, setGolCasa] = useState('');
   const [golFora, setGolFora] = useState('');
   const [palpiteSalvo, setPalpiteSalvo] = useState(false);
+  const [avaliacaoSalva, setAvaliacaoSalva] = useState(false);
 
   const timeCasa = jogo.homeTeam.shortName || jogo.homeTeam.name || 'Time A'
   const timeFora = jogo.awayTeam.shortName || jogo.awayTeam.name || 'Time B'
 
   const handleStarClick = (index, isHalf) => {
+    if (avaliacaoSalva) return;
     const novaNota = isHalf ? index + 0.5 : index + 1;
     setNota(novaNota === nota ? (isHalf ? index : nota) : novaNota);
   };
 
-  
   const salvarPalpite = async () => {
     if (golCasa === '' || golFora === '') return;
     
@@ -38,8 +39,6 @@ function RatingModal({ jogo, onClose }) {
         })
       });
 
-      // ... resto do código igual
-
       if (response.ok) {
         setPalpiteSalvo(true);
         setMensagem("Palpite registrado com sucesso!");
@@ -52,7 +51,6 @@ function RatingModal({ jogo, onClose }) {
     }
   };
 
-
   const compartilhar = () => {
     const texto = `Meu palpite para ${timeCasa} x ${timeFora} é ${golCasa} x ${golFora}! Faz o teu em https://match-rate-amber.vercel.app/ 🏆`;
     if (navigator.share) {
@@ -60,6 +58,18 @@ function RatingModal({ jogo, onClose }) {
     } else {
       navigator.clipboard.writeText(texto);
       setMensagem('Palpite copiado para a área de transferência!');
+      setTimeout(() => setMensagem(''), 3000);
+    }
+  };
+
+  // LÓGICA DE COMPARTILHAR A NOTA
+  const compartilharNota = () => {
+    const texto = `Acabei de avaliar o jogo ${timeCasa} x ${timeFora} com nota ${nota} ★ no MatchRate! Deixa tua nota também em https://match-rate-amber.vercel.app/ ⚽⭐`;
+    if (navigator.share) {
+      navigator.share({ text: texto });
+    } else {
+      navigator.clipboard.writeText(texto);
+      setMensagem('Link da avaliação copiado para a área de transferência!');
       setTimeout(() => setMensagem(''), 3000);
     }
   };
@@ -79,8 +89,8 @@ function RatingModal({ jogo, onClose }) {
       });
 
       if (response.ok) {
+        setAvaliacaoSalva(true);
         setMensagem("Avaliação salva com sucesso!");
-        setTimeout(() => onClose(), 1500);
       } else if (response.status === 400) {
         setMensagem("Você já avaliou este jogo!");
       } else {
@@ -106,7 +116,7 @@ function RatingModal({ jogo, onClose }) {
         <h3 style={{ textAlign: 'center', marginTop: 0 }}>{timeCasa} vs {timeFora}</h3>
 
         {/* PALPITE */}
-       {jogo.status !== 'FINISHED' && (
+        {jogo.status !== 'FINISHED' && (
           <div style={{ backgroundColor: '#1a1a1a', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid #2a2a2a' }}>
             <p style={{ color: '#6c189c', fontWeight: 'bold', fontSize: '0.85rem', margin: '0 0 1rem 0', textAlign: 'center' }}>
               PALPITE DE PLACAR
@@ -127,26 +137,26 @@ function RatingModal({ jogo, onClose }) {
               </div>
             </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
-            <button onClick={salvarPalpite} disabled={golCasa === '' || golFora === '' || palpiteSalvo}
-              style={{
-                flex: 1, padding: '10px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: golCasa === '' || golFora === '' || palpiteSalvo ? 'not-allowed' : 'pointer',
-                backgroundColor: palpiteSalvo ? '#1a472a' : golCasa === '' || golFora === '' ? '#333' : '#6c189c',
-                color: palpiteSalvo ? '#4ade80' : golCasa === '' || golFora === '' ? '#666' : '#fff'
-              }}>
-              {palpiteSalvo ? '✓ Palpite salvo' : 'Salvar palpite'}
-            </button>
-            <button onClick={compartilhar} disabled={golCasa === '' || golFora === ''}
-              style={{
-                padding: '10px 14px', borderRadius: '8px', border: '1px solid #333',
-                backgroundColor: 'transparent', color: golCasa === '' || golFora === '' ? '#444' : '#fff',
-                cursor: golCasa === '' || golFora === '' ? 'not-allowed' : 'pointer', fontSize: '1rem'
-              }}>
-              🔗
-            </button>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
+              <button onClick={salvarPalpite} disabled={golCasa === '' || golFora === '' || palpiteSalvo}
+                style={{
+                  flex: 1, padding: '10px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: golCasa === '' || golFora === '' || palpiteSalvo ? 'not-allowed' : 'pointer',
+                  backgroundColor: palpiteSalvo ? '#1a472a' : golCasa === '' || golFora === '' ? '#333' : '#6c189c',
+                  color: palpiteSalvo ? '#4ade80' : golCasa === '' || golFora === '' ? '#666' : '#fff'
+                }}>
+                {palpiteSalvo ? '✓ Palpite salvo' : 'Salvar palpite'}
+              </button>
+              <button onClick={compartilhar} disabled={golCasa === '' || golFora === ''}
+                style={{
+                  padding: '10px 14px', borderRadius: '8px', border: '1px solid #333',
+                  backgroundColor: 'transparent', color: golCasa === '' || golFora === '' ? '#444' : '#fff',
+                  cursor: golCasa === '' || golFora === '' ? 'not-allowed' : 'pointer', fontSize: '1rem'
+                }}>
+                🔗
+              </button>
+            </div>
           </div>
-        </div>
-       )}
+        )}
 
         {/* AVALIAÇÃO */}
         <p style={{ color: '#888', fontSize: '0.85rem', fontWeight: 'bold', margin: '0 0 0.75rem 0', textAlign: 'center' }}>
@@ -155,7 +165,7 @@ function RatingModal({ jogo, onClose }) {
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '5px', margin: '0 0 1rem 0' }}>
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} style={{ position: 'relative', cursor: 'pointer', display: 'flex' }}>
+            <div key={i} style={{ position: 'relative', cursor: avaliacaoSalva ? 'not-allowed' : 'pointer', display: 'flex' }}>
               <div onClick={() => handleStarClick(i, true)} style={{ width: '15px', height: '30px', position: 'absolute', zIndex: 2 }} />
               <div onClick={() => handleStarClick(i, false)} style={{ width: '15px', height: '30px', position: 'absolute', marginLeft: '15px', zIndex: 2 }} />
               {nota >= i + 1 ? <FaStar color="#ffc107" size={30} /> :
@@ -166,19 +176,32 @@ function RatingModal({ jogo, onClose }) {
         </div>
 
         <textarea placeholder="O que achou do jogo?" value={comentario}
+          disabled={avaliacaoSalva}
           onChange={(e) => setComentario(e.target.value)}
-          style={{ width: '100%', height: '70px', backgroundColor: '#222', border: '1px solid #333', color: '#fff', borderRadius: '8px', padding: '10px', marginBottom: '1rem', boxSizing: 'border-box', resize: 'none' }}
+          style={{ width: '100%', height: '70px', backgroundColor: '#222', border: '1px solid #333', color: '#fff', borderRadius: '8px', padding: '10px', marginBottom: '1rem', boxSizing: 'border-box', resize: 'none', cursor: avaliacaoSalva ? 'not-allowed' : 'text' }}
         />
 
-        <button onClick={enviarAvaliacao} disabled={nota === 0}
-          style={{
-            width: '100%', padding: '12px', border: 'none', borderRadius: '8px', fontWeight: 'bold',
-            backgroundColor: nota === 0 ? '#444' : '#6c189c',
-            color: nota === 0 ? '#888' : 'white',
-            cursor: nota === 0 ? 'not-allowed' : 'pointer'
-          }}>
-          {nota === 0 ? 'Selecione uma nota para avaliar' : `Avaliar Jogo (${nota} ★)`}
-        </button>
+        {/* ESTRUTURA REFORMULADA: BOTÃO PRINCIPAL + COMPARTILHAR NOTA */}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button onClick={enviarAvaliacao} disabled={nota === 0 || avaliacaoSalva}
+            style={{
+              flex: 1, padding: '12px', border: 'none', borderRadius: '8px', fontWeight: 'bold',
+              backgroundColor: avaliacaoSalva ? '#1a472a' : nota === 0 ? '#444' : '#6c189c',
+              color: avaliacaoSalva ? '#4ade80' : nota === 0 ? '#888' : 'white',
+              cursor: nota === 0 || avaliacaoSalva ? 'not-allowed' : 'pointer'
+            }}>
+            {avaliacaoSalva ? '✓ Avaliado' : nota === 0 ? 'Selecione uma nota' : `Avaliar Jogo (${nota} ★)`}
+          </button>
+          
+          <button onClick={compartilharNota} disabled={nota === 0}
+            style={{
+              padding: '0 14px', borderRadius: '8px', border: '1px solid #333',
+              backgroundColor: 'transparent', color: nota === 0 ? '#444' : '#fff',
+              cursor: nota === 0 ? 'not-allowed' : 'pointer', fontSize: '1rem'
+            }}>
+            🔗
+          </button>
+        </div>
 
         {mensagem && (
           <div style={{
