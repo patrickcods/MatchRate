@@ -158,7 +158,7 @@ function RatingModal({ jogo, onClose }) {
           </div>
         )}
 
-        {/* AVALIAÇÃO */}
+        {/* AVALIAÇÃO POR ESTRELAS */}
         <p style={{ color: '#888', fontSize: '0.85rem', fontWeight: 'bold', margin: '0 0 0.75rem 0', textAlign: 'center' }}>
           AVALIAÇÃO DO JOGO
         </p>
