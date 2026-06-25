@@ -26,7 +26,7 @@ function AuthModal({ onClose, onLogin }) {
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
   const [verSenha, setVerSenha] = useState(false)
-  const [etapa, setEtapa] = useState('auth') // 'auth' | 'boasvindas'
+  const [etapa, setEtapa] = useState('auth')
   const [usuarioLogado, setUsuarioLogado] = useState(null)
   const [campeaoEscolhido, setCampeaoEscolhido] = useState(null)
   const [salvandoCampeao, setSalvandoCampeao] = useState(false)
@@ -56,7 +56,8 @@ function AuthModal({ onClose, onLogin }) {
         const userData = await me.json()
         onLogin(userData)
       } else {
-        // Cadastro — depois mostra boas-vindas
+        
+        // Cadastro e boas-vindas
         const res = await fetch(`${API}/api/v1/auth/cadastro`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
