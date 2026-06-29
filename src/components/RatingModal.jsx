@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
+import ComentariosJogo from './ComentariosJogo';
 
 function RatingModal({ jogo, onClose }) {
   const [nota, setNota] = useState(0);
@@ -213,6 +214,8 @@ function RatingModal({ jogo, onClose }) {
             {mensagem}
           </div>
         )}
+
+        <ComentariosJogo jogoId={jogo.id} />
       </div>
     </div>
   );

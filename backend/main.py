@@ -250,32 +250,32 @@ def minhas_avaliacoes(db: Session = Depends(get_db), usuario = Depends(get_usuar
     return db.query(models.Avaliacao).filter(models.Avaliacao.id_usuario == usuario.id).all()
 
 
-# @app.get("/api/v1/avaliacoes/{jogo_id}/comentarios")
-# def listar_comentarios(jogo_id: int, db: Session = Depends(get_db)):
-#     avaliacoes = db.query(
-#         models.Avaliacao.nota,
-#         models.Avaliacao.comentario,
-#         models.Avaliacao.criado_em,
-#         models.Usuario.nome,
-#         models.Usuario.avatar_url
-#     ).join(
-#         models.Usuario, models.Avaliacao.id_usuario == models.Usuario.id
-#     ).filter(
-#         models.Avaliacao.id_jogo == jogo_id,
-#         models.Avaliacao.comentario.isnot(None),
-#         models.Avaliacao.comentario != ""
-#     ).order_by(models.Avaliacao.criado_em.desc()).all()
+@app.get("/api/v1/avaliacoes/{jogo_id}/comentarios")
+def listar_comentarios(jogo_id: int, db: Session = Depends(get_db)):
+    avaliacoes = db.query(
+        models.Avaliacao.nota,
+        models.Avaliacao.comentario,
+        models.Avaliacao.criado_em,
+        models.Usuario.nome,
+        models.Usuario.avatar_url
+    ).join(
+        models.Usuario, models.Avaliacao.id_usuario == models.Usuario.id
+    ).filter(
+        models.Avaliacao.id_jogo == jogo_id,
+        models.Avaliacao.comentario.isnot(None),
+        models.Avaliacao.comentario != ""
+    ).order_by(models.Avaliacao.criado_em.desc()).all()
 
-#     return [
-#         {
-#             "nota": a.nota,
-#             "comentario": a.comentario,
-#             "criado_em": a.criado_em,
-#             "nome": a.nome,
-#             "avatar_url": a.avatar_url
-#         }
-#         for a in avaliacoes
-#     ]
+    return [
+        {
+            "nota": a.nota,
+            "comentario": a.comentario,
+            "criado_em": a.criado_em,
+            "nome": a.nome,
+            "avatar_url": a.avatar_url
+        }
+        for a in avaliacoes
+    ]
 
 if __name__ == "__main__":
     import uvicorn
