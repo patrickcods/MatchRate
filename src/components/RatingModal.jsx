@@ -109,8 +109,8 @@ function RatingModal({ jogo, onClose }) {
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-      <div style={{ backgroundColor: '#141414', padding: '2rem', borderRadius: '15px', color: '#fff', width: '370px', maxHeight: '90vh', overflowY: 'auto' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(18, 18, 18, 0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+      <div style={{ backgroundColor: '#1e1e1e', border: '1px solid #2d2d2d', padding: '2rem', borderRadius: '15px', color: '#fff', width: '370px', maxHeight: '90vh', overflowY: 'auto' }}>
 
         <button onClick={onClose} style={{ float: 'right', background: 'none', border: 'none', color: '#888', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
 

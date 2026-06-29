@@ -73,7 +73,7 @@ function App() {
   }, []);
 
   return (
-    <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div style={{ backgroundColor: '#1a1a1a', minHeight: '100vh', padding: '2rem', fontFamily: 'sans-serif' }}>
 
       {/* HEADER E TÍTULO */}
       <header style={{ textAlign: 'center', marginBottom: '3rem' }}>

@@ -38,8 +38,8 @@ function MatchCard({ jogo, onSelecionar }) {
     <div
       onClick={() => onSelecionar(jogo)}
       style={{
-        backgroundColor: '#141414',
-        border: `1px solid ${corBorda}`,
+        backgroundColor: '#262626',
+        border: '1px solid #333',
         borderRadius: '12px',
         padding: '1.25rem',
         cursor: 'pointer',
