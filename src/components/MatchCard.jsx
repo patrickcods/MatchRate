@@ -6,7 +6,8 @@ function MatchCard({ jogo, onSelecionar }) {
 
   const fases = {
     GROUP_STAGE: 'Fase de Grupos',
-    ROUND_OF_16: 'Oitavas de Final',
+    LAST_32: '16 Avos', 
+    LAST_16: 'Oitavas', 
     QUARTER_FINALS: 'Quartas de Final',
     SEMI_FINALS: 'Semifinal',
     THIRD_PLACE: 'Terceiro Lugar',
