@@ -61,11 +61,13 @@ function ComentariosJogo({ jogoId, timeCasa, timeFora }) {
     return null;
   }
 
+  // LIMITA A 30 COMENTÁRIOS PARA NÃO PESAR
   const comentariosParaExibir = comentarios.slice(0, 30);
 
   return (
     <div style={{ marginTop: '1.5rem', position: 'relative' }}>
       
+      {/* Toast Notification (Aviso de copiado) */}
       {mensagemToast && (
         <div style={{ 
           position: 'absolute', top: '-40px', left: '50%', transform: 'translateX(-50%)',
@@ -116,6 +118,7 @@ function ComentariosJogo({ jogoId, timeCasa, timeFora }) {
               {renderEstrelas(c.nota)}
             </div>
             
+            {/* TEXTO LIMITADO A 3 LINHAS */}
             <p style={{ 
               color: '#aaa', 
               fontSize: '0.82rem', 
@@ -130,6 +133,7 @@ function ComentariosJogo({ jogoId, timeCasa, timeFora }) {
               {c.comentario}
             </p>
             
+            {/* RODAPÉ DO COMENTÁRIO: DATA + BOTÃO COMPARTILHAR */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <p style={{ color: '#555', fontSize: '0.7rem', margin: 0 }}>{formatarData(c.criado_em)}</p>
               
