@@ -54,10 +54,33 @@ function ComentariosJogo({ jogoId }) {
         {comentarios.map((c, i) => (
           <div key={i} style={{ backgroundColor: '#1a1a1a', borderRadius: '10px', padding: '0.75rem', border: '1px solid #2a2a2a' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              {c.avatar_url ? (
-                <img src={c.avatar_url} alt={c.nome} style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+             {c.avatar_url ? (
+                <img 
+                  src={c.avatar_url} 
+                  alt={c.nome} 
+                  style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    borderRadius: '50%', 
+                    backgroundColor: '#f0f0f0', // Fundo claro para o SVG do DiceBear destacar no tema dark
+                    objectFit: 'cover' 
+                  }} 
+                />
               ) : (
-                <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#333' }} />
+                <div style={{ 
+                  width: '24px', 
+                  height: '24px', 
+                  borderRadius: '50%', 
+                  backgroundColor: '#6c189c', 
+                  color: '#fff', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  fontSize: '0.75rem', 
+                  fontWeight: 'bold' 
+                }}>
+                  {c.nome ? c.nome.charAt(0).toUpperCase() : 'U'}
+                </div>
               )}
               <span style={{ color: '#fff', fontSize: '0.8rem', fontWeight: 'bold', flex: 1 }}>{c.nome}</span>
               {renderEstrelas(c.nota)}
