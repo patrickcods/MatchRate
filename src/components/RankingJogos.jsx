@@ -37,7 +37,7 @@ function RankingJogos({ jogos }) {
   const temMais = rankingCompleto.length > LIMITE_INICIAL;
 
   return (
-    <div style={{ backgroundColor: '#1c1c1e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #2c2c2e' }}>
+    <div style={{ backgroundColor: '#161616', padding: '1.5rem', borderRadius: '12px', border: '1px solid #222' }}>
       <h3 style={{ color: '#ffc107', textAlign: 'center', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
         <FaStar /> Melhores Jogos da Copa <FaStar />
       </h3>
