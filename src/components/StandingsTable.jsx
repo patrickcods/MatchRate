@@ -29,7 +29,7 @@ function StandingsTable() {
     .sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference || b.goalsFor - a.goalsFor);
 
   return (
-    <div style={{ backgroundColor: '#141414', padding: '1rem', borderRadius: '12px', margin: '1rem auto', maxWidth: '600px', border: '1px solid #333' }}>
+    <div style={{ backgroundColor: '#1e1e1e', padding: '1rem', borderRadius: '12px', margin: '1rem auto', maxWidth: '600px', border: '1px solid #2d2d2d'}}>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '1rem' }}>
         <button onClick={() => setVerGeral(false)} style={{

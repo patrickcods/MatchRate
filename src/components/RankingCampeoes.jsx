@@ -18,7 +18,7 @@ function RankingCampeoes() {
   const temMais = ranking.length > LIMITE_INICIAL
 
   return (
-    <div style={{ maxWidth: '600px', margin: '2rem auto', backgroundColor: '#141414', borderRadius: '16px', padding: '1.5rem', border: '1px solid #222' }}>
+    <div style={{ maxWidth: '600px', margin: '2rem auto', backgroundColor: '#1e1e1e', borderRadius: '16px', padding: '1.5rem', border: '1px solid #2d2d2d' }}>
       <h2 style={{ color: '#fff', textAlign: 'center', margin: '0 0 1.5rem 0', fontSize: '1.3rem' }}>
         🏆 Quem a comunidade acha que vai ganhar?
       </h2>
