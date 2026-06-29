@@ -2,11 +2,19 @@ import { useState, useEffect } from 'react';
 import MatchCard from './MatchCard';
 
 function MatchList({ jogos, onSelecionar }) {
-  const fases = ['GROUP_STAGE', 'LAST_16', 'QUARTER_FINALS', 'SEMI_FINALS', 'FINAL'];
-  const labels = { GROUP_STAGE: 'Grupos', LAST_16: 'Oitavas', QUARTER_FINALS: 'Quartas', SEMI_FINALS: 'Semifinal', FINAL: 'Final' };
+  const fases = ['GROUP_STAGE', 'LAST_32', 'LAST_16', 'QUARTER_FINALS', 'SEMI_FINALS', 'FINAL'];
+  
+  const labels = { 
+    GROUP_STAGE: 'Grupos', 
+    LAST_32: '16 Avos', 
+    LAST_16: 'Oitavas', 
+    QUARTER_FINALS: 'Quartas', 
+    SEMI_FINALS: 'Semifinal', 
+    FINAL: 'Final' 
+  };
+  
   const jogosAtuais = jogos || [];
 
-  // Descobre a fase atual: a última fase que já tem jogo FINISHED ou IN_PLAY
   const detectarFaseAtual = () => {
     for (let i = fases.length - 1; i >= 0; i--) {
       const temJogo = jogosAtuais.some(j => j.stage === fases[i] && (j.status === 'FINISHED' || j.status === 'IN_PLAY' || j.status === 'PAUSED'));
