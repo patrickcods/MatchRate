@@ -161,7 +161,7 @@ function App() {
             padding: '0.7rem 2.2rem',
             borderRadius: '25px',
             fontWeight: 'bold',
-            fontSize: '0.95rem',
+            fontSize: '1rem',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             border: pagina === 'home' ? '1px solid #a855f7' : '1px solid #2c2c2e',
@@ -173,7 +173,7 @@ function App() {
             gap: '8px'
           }}
         >
-          ⚽ Jogos
+          Jogos
         </button>
 
         <button
@@ -182,7 +182,7 @@ function App() {
             padding: '0.7rem 2.2rem',
             borderRadius: '25px',
             fontWeight: 'bold',
-            fontSize: '0.95rem',
+            fontSize: '1rem',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             border: pagina === 'simulador' ? '1px solid #a855f7' : '1px solid #2c2c2e',
@@ -195,7 +195,7 @@ function App() {
             position: 'relative'
           }}
         >
-          🏆 Simulador
+          Simulador
           <span style={{
             backgroundColor: '#ffc107',
             color: '#1c1c1e',
