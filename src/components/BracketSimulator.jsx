@@ -1,52 +1,46 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 
 const SITE_URL = 'https://match-rate-amber.vercel.app';
 
-// Confrontos reais do Round of 16 (atualizado pós-fase de grupos)
-const ROUND16_TIMES = {
-  1:  { casa: { nome: 'Holanda', flag: 'https://flagcdn.com/w40/nl.png' }, fora: { nome: 'Marrocos', flag: 'https://flagcdn.com/w40/ma.png' } },
-  2:  { casa: { nome: 'Alemanha', flag: 'https://flagcdn.com/w40/de.png' }, fora: { nome: 'Paraguai', flag: 'https://flagcdn.com/w40/py.png' } },
-  3:  { casa: { nome: 'Brasil', flag: 'https://flagcdn.com/w40/br.png' }, fora: { nome: 'Japão', flag: 'https://flagcdn.com/w40/jp.png' } },
-  4:  { casa: { nome: 'África do Sul', flag: 'https://flagcdn.com/w40/za.png' }, fora: { nome: 'Canadá', flag: 'https://flagcdn.com/w40/ca.png' } },
-  5:  { casa: { nome: 'Costa do Marfim', flag: 'https://flagcdn.com/w40/ci.png' }, fora: { nome: 'Noruega', flag: 'https://flagcdn.com/w40/no.png' } },
-  6:  { casa: { nome: 'França', flag: 'https://flagcdn.com/w40/fr.png' }, fora: { nome: 'Suécia', flag: 'https://flagcdn.com/w40/se.png' } },
-  7:  { casa: { nome: 'México', flag: 'https://flagcdn.com/w40/mx.png' }, fora: { nome: 'Equador', flag: 'https://flagcdn.com/w40/ec.png' } },
-  8:  { casa: { nome: 'Inglaterra', flag: 'https://flagcdn.com/w40/gb-eng.png' }, fora: { nome: 'RD Congo', flag: 'https://flagcdn.com/w40/cd.png' } },
-  9:  { casa: { nome: 'Bélgica', flag: 'https://flagcdn.com/w40/be.png' }, fora: { nome: 'Senegal', flag: 'https://flagcdn.com/w40/sn.png' } },
-  10: { casa: { nome: 'Estados Unidos', flag: 'https://flagcdn.com/w40/us.png' }, fora: { nome: 'Bósnia e Herzegovina', flag: 'https://flagcdn.com/w40/ba.png' } },
-  11: { casa: { nome: 'Espanha', flag: 'https://flagcdn.com/w40/es.png' }, fora: { nome: 'Áustria', flag: 'https://flagcdn.com/w40/at.png' } },
-  12: { casa: { nome: 'Portugal', flag: 'https://flagcdn.com/w40/pt.png' }, fora: { nome: 'Croácia', flag: 'https://flagcdn.com/w40/hr.png' } },
-  13: { casa: { nome: 'Suíça', flag: 'https://flagcdn.com/w40/ch.png' }, fora: { nome: 'Argélia', flag: 'https://flagcdn.com/w40/dz.png' } },
-  14: { casa: { nome: 'Austrália', flag: 'https://flagcdn.com/w40/au.png' }, fora: { nome: 'Egito', flag: 'https://flagcdn.com/w40/eg.png' } },
-  15: { casa: { nome: 'Argentina', flag: 'https://flagcdn.com/w40/ar.png' }, fora: { nome: 'Cabo Verde', flag: 'https://flagcdn.com/w40/cv.png' } },
-  16: { casa: { nome: 'Colômbia', flag: 'https://flagcdn.com/w40/co.png' }, fora: { nome: 'Gana', flag: 'https://flagcdn.com/w40/gh.png' } },
+// Mapa de fase do simulador -> stage da API
+const STAGE_MAP = {
+  round16: 'LAST_32',
+  oitavas: 'LAST_16',
+  quartas: 'QUARTER_FINALS',
+  semi: 'SEMI_FINALS',
+  final: 'FINAL',
 };
+
+const flagCdn = (nome) => `https://flagcdn.com/w40/${nome}.png`; // fallback não usado, mantemos crest da API
 
 const Bandeira = ({ flag, nome }) => (
   flag ? <img src={flag} alt={nome} style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }} /> : null
 );
 
-const BotaoTime = ({ time, selecionado, onClick }) => (
-  <button onClick={onClick} style={{
+const BotaoTime = ({ time, selecionado, onClick, bloqueado }) => (
+  <button onClick={bloqueado ? undefined : onClick} style={{
     padding: '10px', backgroundColor: selecionado ? '#6c189c' : '#222', color: '#fff',
     border: selecionado ? '1px solid #a855f7' : '1px solid #444', borderRadius: '6px',
-    cursor: time ? 'pointer' : 'default', flex: 1, fontSize: '0.9rem',
+    cursor: time && !bloqueado ? 'pointer' : 'default', flex: 1, fontSize: '0.9rem',
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
     fontWeight: selecionado ? 'bold' : 'normal', transition: 'all 0.2s', opacity: time ? 1 : 0.4
   }}>
     <Bandeira flag={time?.flag} nome={time?.nome} />
     {time?.nome || 'A definir'}
+    {bloqueado && selecionado && <span style={{ fontSize: '0.7rem', color: '#4ade80' }}>✓ real</span>}
   </button>
 );
 
-const cardMatchStyle = { display: 'flex', gap: '15px', backgroundColor: '#141414', padding: '15px', borderRadius: '8px', border: '1px solid #333', width: '340px', justifyContent: 'center', alignItems: 'center' };
+const cardMatchStyle = { display: 'flex', gap: '15px', backgroundColor: '#1c1c1e', padding: '15px', borderRadius: '8px', border: '1px solid #2c2c2e', width: '340px', justifyContent: 'center', alignItems: 'center' };
 
-const JogoCard = ({ jogo, vencedores, setter, votar }) => (
+const JogoCard = ({ jogo, vencedores, setter, votar, automatico }) => (
   <div style={cardMatchStyle}>
-    <BotaoTime time={jogo.casa} selecionado={vencedores[jogo.id]?.nome === jogo.casa?.nome} onClick={() => votar(setter, jogo.id, jogo.casa, jogo.fora)} />
+    <BotaoTime time={jogo.casa} selecionado={vencedores[jogo.id]?.nome === jogo.casa?.nome}
+      onClick={() => votar(setter, jogo.id, jogo.casa, jogo.fora)} bloqueado={automatico} />
     <span style={{ fontWeight: 'bold', color: '#555', flexShrink: 0 }}>VS</span>
-    <BotaoTime time={jogo.fora} selecionado={vencedores[jogo.id]?.nome === jogo.fora?.nome} onClick={() => votar(setter, jogo.id, jogo.fora, jogo.casa)} />
+    <BotaoTime time={jogo.fora} selecionado={vencedores[jogo.id]?.nome === jogo.fora?.nome}
+      onClick={() => votar(setter, jogo.id, jogo.fora, jogo.casa)} bloqueado={automatico} />
   </div>
 );
 
@@ -65,7 +59,7 @@ const BotoesCompartilhar = ({ texto, refArea }) => {
 
   const tirarPrint = async () => {
     if (!refArea?.current) return;
-    const canvas = await html2canvas(refArea.current, { backgroundColor: '#0a0a0a', scale: 2 });
+    const canvas = await html2canvas(refArea.current, { backgroundColor: '#121212', scale: 2 });
     const link = document.createElement('a');
     link.download = 'matchrate-simulador.png';
     link.href = canvas.toDataURL();
@@ -90,7 +84,16 @@ const BotoesCompartilhar = ({ texto, refArea }) => {
   );
 };
 
+// Converte um jogo da API em { nome, flag(crest) }
+const timeDaApi = (teamObj) => {
+  if (!teamObj || !teamObj.name) return null;
+  return { nome: teamObj.shortName || teamObj.name, flag: teamObj.crest };
+};
+
 function BracketSimulator({ usuario }) {
+  const [jogosApi, setJogosApi] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+
   const [fase, setFase] = useState('round16');
   const [vencedoresRound16, setVencedoresRound16] = useState({});
   const [vencedoresOitavas, setVencedoresOitavas] = useState({});
@@ -104,11 +107,34 @@ function BracketSimulator({ usuario }) {
   const refSemi = useRef(null);
   const refCampeao = useRef(null);
 
-  const gerarRound16 = () => Object.keys(ROUND16_TIMES).map(id => ({
-    id: Number(id),
-    casa: ROUND16_TIMES[id].casa,
-    fora: ROUND16_TIMES[id].fora
-  }));
+  // Busca os jogos reais da API uma vez
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/v1/jogos`)
+      .then(res => res.json())
+      .then(data => {
+        const lista = Array.isArray(data?.matches) ? data.matches : Array.isArray(data) ? data : [];
+        setJogosApi(lista);
+        setCarregando(false);
+      })
+      .catch(err => {
+        console.error("Erro ao buscar jogos para o simulador:", err);
+        setCarregando(false);
+      });
+  }, []);
+
+  // Gera os 16 jogos do Round of 16 com base na ordem real da API (mantém a ordem do bracket)
+  const gerarRound16 = () => {
+    const jogosFase = jogosApi.filter(j => j.stage === STAGE_MAP.round16);
+    return jogosFase.map((j, i) => ({
+      id: i + 1,
+      apiId: j.id,
+      casa: timeDaApi(j.homeTeam),
+      fora: timeDaApi(j.awayTeam),
+      finalizado: j.status === 'FINISHED',
+      placarCasa: j.score?.fullTime?.home,
+      placarFora: j.score?.fullTime?.away,
+    }));
+  };
 
   const gerarOitavas = () => Array.from({ length: 8 }, (_, i) => ({
     id: i + 1, casa: vencedoresRound16[i * 2 + 1], fora: vencedoresRound16[i * 2 + 2]
@@ -121,6 +147,22 @@ function BracketSimulator({ usuario }) {
     { id: 2, casa: vencedoresQuartas[3], fora: vencedoresQuartas[4] }
   ];
   const gerarFinal = () => [{ id: 1, casa: vencedoresSemi[1], fora: vencedoresSemi[2] }];
+
+  // Auto-preenche vencedores de jogos já finalizados na API (Round of 16)
+  useEffect(() => {
+    if (jogosApi.length === 0) return;
+    const r16 = gerarRound16();
+    setVencedoresRound16(prev => {
+      const novo = { ...prev };
+      r16.forEach(j => {
+        if (j.finalizado && j.casa && j.fora && typeof j.placarCasa === 'number') {
+          const vencedor = j.placarCasa > j.placarFora ? j.casa : j.placarFora > j.placarCasa ? j.fora : null;
+          if (vencedor) novo[j.id] = vencedor;
+        }
+      });
+      return novo;
+    });
+  }, [jogosApi]);
 
   const votar = (setter, jogoId, timeObj, timeAdversario) => {
     if (!timeObj || !timeAdversario || timeObj.nome === timeAdversario.nome) return;
@@ -154,24 +196,30 @@ function BracketSimulator({ usuario }) {
   const [salvando, setSalvando] = useState(false);
   const [simulacaoSalva, setSimulacaoSalva] = useState(false);
 
+  if (carregando) {
+    return <p style={{ color: '#fff', textAlign: 'center', padding: '3rem' }}>Carregando confrontos reais da Copa...</p>;
+  }
+
+  const round16Jogos = gerarRound16();
+
   return (
     <div style={{ color: '#fff', padding: '20px', maxWidth: '1100px', margin: '0 auto', fontFamily: 'sans-serif' }}>
 
-      {/* ROUND OF 16 — ponto de partida real */}
+      {/* ROUND OF 16 */}
       {fase === 'round16' && (
         <div style={{ textAlign: 'center' }}>
           <h2>16 Avos de Final</h2>
           <div style={bannerStyle}>
-            <p style={bannerTexto}>Os confrontos reais já estão definidos! Escolha quem avança em cada jogo dos 16 avos.</p>
+            <p style={bannerTexto}>Confrontos reais da Copa! Jogos já encerrados são preenchidos automaticamente — você só escolhe os que ainda vão rolar.</p>
           </div>
-          <div ref={refRound16} style={{ backgroundColor: '#0a0a0a', padding: '1rem' }}>
+          <div ref={refRound16} style={{ backgroundColor: '#121212', padding: '1rem' }}>
             <div style={containerStyle}>
-              {gerarRound16().map(jogo => (
-                <JogoCard key={jogo.id} jogo={jogo} vencedores={vencedoresRound16} setter={setVencedoresRound16} votar={votar} />
+              {round16Jogos.map(jogo => (
+                <JogoCard key={jogo.id} jogo={jogo} vencedores={vencedoresRound16} setter={setVencedoresRound16} votar={votar} automatico={jogo.finalizado} />
               ))}
             </div>
           </div>
-          <BotoesCompartilhar texto={textoFase('16 Avos de Final', gerarRound16(), vencedoresRound16)} refArea={refRound16} />
+          <BotoesCompartilhar texto={textoFase('16 Avos de Final', round16Jogos, vencedoresRound16)} refArea={refRound16} />
           <div style={{ textAlign: 'center' }}>
             <button onClick={() => setFase('oitavas')} style={btnAvancarStyle}>Avançar para Oitavas →</button>
           </div>
@@ -182,7 +230,7 @@ function BracketSimulator({ usuario }) {
       {fase === 'oitavas' && (
         <div style={{ textAlign: 'center' }}>
           <h2>Oitavas de Final</h2>
-          <div ref={refOitavas} style={{ backgroundColor: '#0a0a0a', padding: '1rem' }}>
+          <div ref={refOitavas} style={{ backgroundColor: '#121212', padding: '1rem' }}>
             <div style={containerStyle}>
               {gerarOitavas().map(jogo => (
                 <JogoCard key={jogo.id} jogo={jogo} vencedores={vencedoresOitavas} setter={setVencedoresOitavas} votar={votar} />
@@ -201,7 +249,7 @@ function BracketSimulator({ usuario }) {
       {fase === 'quartas' && (
         <div style={{ textAlign: 'center' }}>
           <h2>Quartas de Final</h2>
-          <div ref={refQuartas} style={{ backgroundColor: '#0a0a0a', padding: '1rem' }}>
+          <div ref={refQuartas} style={{ backgroundColor: '#121212', padding: '1rem' }}>
             <div style={containerStyle}>
               {gerarQuartas().map(jogo => (
                 <JogoCard key={jogo.id} jogo={jogo} vencedores={vencedoresQuartas} setter={setVencedoresQuartas} votar={votar} />
@@ -220,7 +268,7 @@ function BracketSimulator({ usuario }) {
       {fase === 'semi' && (
         <div style={{ textAlign: 'center' }}>
           <h2>Semifinal</h2>
-          <div ref={refSemi} style={{ backgroundColor: '#0a0a0a', padding: '1rem' }}>
+          <div ref={refSemi} style={{ backgroundColor: '#121212', padding: '1rem' }}>
             <div style={containerStyle}>
               {gerarSemi().map(jogo => (
                 <JogoCard key={jogo.id} jogo={jogo} vencedores={vencedoresSemi} setter={setVencedoresSemi} votar={votar} />
@@ -254,7 +302,7 @@ function BracketSimulator({ usuario }) {
 
       {/* CAMPEÃO */}
       {fase === 'campeao' && (
-        <div ref={refCampeao} style={{ textAlign: 'center', padding: '3rem 0', backgroundColor: '#0a0a0a' }}>
+        <div ref={refCampeao} style={{ textAlign: 'center', padding: '3rem 0', backgroundColor: '#121212' }}>
           <img src={campeao?.flag} alt={campeao?.nome} style={{ width: '120px', height: '80px', objectFit: 'cover', borderRadius: '8px', marginBottom: '1.5rem' }} />
           <h1 style={{ fontSize: '4rem', color: '#ffffff', margin: 0 }}>{campeao?.nome}</h1> <br />
           <h2 style={{ color: '#fff', marginTop: '1rem' }}>É o seu Campeão da Copa do Mundo 2026!</h2>
@@ -295,7 +343,7 @@ function BracketSimulator({ usuario }) {
                 {simulacaoSalva ? '✓ Simulação salva no perfil!' : salvando ? 'Salvando...' : '💾 Salvar no meu perfil'}
               </button>
             ) : (
-              <div style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '12px', padding: '1rem' }}>
+              <div style={{ backgroundColor: '#1c1c1e', border: '1px solid #2c2c2e', borderRadius: '12px', padding: '1rem' }}>
                 <p style={{ color: '#888', margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>
                   Faça login para salvar sua simulação e aparecer no ranking!
                 </p>
@@ -303,10 +351,10 @@ function BracketSimulator({ usuario }) {
             )}
           </div>
 
-          <div style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '12px', padding: '1.5rem', maxWidth: '500px', margin: '2rem auto', textAlign: 'left' }}>
+          <div style={{ backgroundColor: '#1c1c1e', border: '1px solid #2c2c2e', borderRadius: '12px', padding: '1.5rem', maxWidth: '500px', margin: '2rem auto', textAlign: 'left' }}>
             <h3 style={{ color: '#ffffff', margin: '0 0 1rem 0', textAlign: 'center' }}>Sua jornada completa</h3>
             {[
-              { titulo: '16 Avos', jogos: gerarRound16(), vencedores: vencedoresRound16 },
+              { titulo: '16 Avos', jogos: round16Jogos, vencedores: vencedoresRound16 },
               { titulo: 'Oitavas', jogos: gerarOitavas(), vencedores: vencedoresOitavas },
               { titulo: 'Quartas', jogos: gerarQuartas(), vencedores: vencedoresQuartas },
               { titulo: 'Semifinais', jogos: gerarSemi(), vencedores: vencedoresSemi },
@@ -330,7 +378,7 @@ function BracketSimulator({ usuario }) {
           <BotoesCompartilhar texto={textoCampeao()} refArea={refCampeao} />
 
           <button
-            onClick={() => { setFase('round16'); setVencedoresRound16({}); setVencedoresOitavas({}); setVencedoresQuartas({}); setVencedoresSemi({}); setCampeao(null); setSimulacaoSalva(false); }}
+            onClick={() => { setFase('round16'); setVencedoresOitavas({}); setVencedoresQuartas({}); setVencedoresSemi({}); setCampeao(null); setSimulacaoSalva(false); }}
             style={{ ...btnAvancarStyle, marginTop: '1.5rem' }}>
             Reiniciar Simulador
           </button>
