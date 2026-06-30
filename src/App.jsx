@@ -15,6 +15,7 @@ function App() {
   const [usuario, setUsuario] = useState(null);
   const [mostrarAuth, setMostrarAuth] = useState(false);
   const [meuCampeao, setMeuCampeao] = useState(null);
+  const [abaAtiva, setAbaAtiva] = useState('jogos');
 
   const styles = {
     navButton: {
@@ -155,7 +156,7 @@ function App() {
       {/* MENU DE NAVEGAÇÃO */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '2rem', marginTop: '1rem' }}>
         <button 
-          onClick={() => setAbaAtiva('jogos')} // <-- Ajuste para a sua variável de estado real
+          onClick={() => setAbaAtiva('jogos')}
           style={{
             padding: '0.6rem 2rem',
             borderRadius: '25px',
@@ -173,7 +174,7 @@ function App() {
         </button>
 
         <button 
-          onClick={() => setAbaAtiva('simulador')} // <-- Ajuste para a sua variável de estado real
+          onClick={() => setAbaAtiva('simulador')}
           style={{
             padding: '0.6rem 2rem',
             borderRadius: '25px',
