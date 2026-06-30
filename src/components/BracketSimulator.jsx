@@ -303,7 +303,7 @@ function BracketSimulator({ usuario }) {
             )}
           </div>
 
-          <div style={{ backgroundColor: '#141414', border: '1px solid #333', borderRadius: '12px', padding: '1.5rem', maxWidth: '500px', margin: '2rem auto', textAlign: 'left' }}>
+          <div style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '12px', padding: '1.5rem', maxWidth: '500px', margin: '2rem auto', textAlign: 'left' }}>
             <h3 style={{ color: '#ffffff', margin: '0 0 1rem 0', textAlign: 'center' }}>Sua jornada completa</h3>
             {[
               { titulo: '16 Avos', jogos: gerarRound16(), vencedores: vencedoresRound16 },

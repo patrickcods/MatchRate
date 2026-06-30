@@ -50,13 +50,14 @@ function App() {
     fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data) {
-          setUsuario(data)
-          buscarMeuCampeao(token)
+      .then(res => {
+        if (!res.ok) {
+          localStorage.removeItem('token')
+          return null
         }
+        return res.json()
       })
+      .then(data => { if (data) setUsuario(data) })
       .catch(() => localStorage.removeItem('token'))
   }, [])
 
