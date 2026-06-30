@@ -57,7 +57,12 @@ function App() {
         }
         return res.json()
       })
-      .then(data => { if (data) setUsuario(data) })
+      .then(data => {
+        if (data) {
+          setUsuario(data)
+          buscarMeuCampeao(token)
+        }
+      })
       .catch(() => localStorage.removeItem('token'))
   }, [])
 
@@ -69,12 +74,12 @@ function App() {
     }
     fetch(`${apiUrl}/api/v1/jogos`)
       .then(res => res.json())
-      .then(data => { setJogos(data.matches || data); })
+      .then(data => { setJogos(Array.isArray(data?.matches) ? data.matches : Array.isArray(data) ? data : []); })
       .catch(err => console.error("Erro ao buscar jogos no endpoint:", err));
   }, []);
 
   return (
-    <div style={{ backgroundColor: '#1a1a1a', minHeight: '100vh', padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', padding: '2rem', fontFamily: 'sans-serif' }}>
 
       {/* HEADER E TÍTULO */}
       <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -170,7 +175,7 @@ function App() {
           <MatchList jogos={jogos} onSelecionar={setJogoSelecionado} />
         </>
       ) : pagina === 'simulador' ? (
-        <BracketSimulator />
+        <BracketSimulator usuario={usuario} />
       ) : (
         <ProfilePage
           usuario={usuario}
@@ -182,7 +187,7 @@ function App() {
           onAtualizarCampeao={(novaSimulacao) => setMeuCampeao(novaSimulacao)}
         />
       )}
-      
+
       {jogoSelecionado && (
         <RatingModal
           jogo={jogoSelecionado}
