@@ -15,7 +15,6 @@ function App() {
   const [usuario, setUsuario] = useState(null);
   const [mostrarAuth, setMostrarAuth] = useState(false);
   const [meuCampeao, setMeuCampeao] = useState(null);
-  const [abaAtiva, setAbaAtiva] = useState('jogos');
 
   const styles = {
     navButton: {
@@ -154,57 +153,66 @@ function App() {
       )}
 
       {/* MENU DE NAVEGAÇÃO */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '2rem', marginTop: '1rem' }}>
-        <button 
-          onClick={() => setAbaAtiva('jogos')}
-          style={{
-            padding: '0.6rem 2rem',
-            borderRadius: '25px',
-            fontWeight: 'bold',
-            fontSize: '0.95rem',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            border: '1px solid',
-            backgroundColor: abaAtiva === 'jogos' ? '#6c189c' : '#161616',
-            borderColor: abaAtiva === 'jogos' ? '#6c189c' : '#2a2a2a',
-            color: abaAtiva === 'jogos' ? '#fff' : '#888',
-          }}
-        >
-          Jogos
-        </button>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '2.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
 
-        <button 
-          onClick={() => setAbaAtiva('simulador')}
+        <button
+          onClick={() => setPagina('home')}
           style={{
-            padding: '0.6rem 2rem',
+            padding: '0.7rem 2.2rem',
             borderRadius: '25px',
             fontWeight: 'bold',
             fontSize: '0.95rem',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            border: '1px solid',
-            backgroundColor: abaAtiva === 'simulador' ? '#6c189c' : '#161616',
-            borderColor: abaAtiva === 'simulador' ? '#6c189c' : '#2a2a2a',
-            color: abaAtiva === 'simulador' ? '#fff' : '#888',
+            border: pagina === 'home' ? '1px solid #a855f7' : '1px solid #2c2c2e',
+            backgroundColor: pagina === 'home' ? '#6c189c' : '#1c1c1e',
+            color: pagina === 'home' ? '#fff' : '#888',
+            boxShadow: pagina === 'home' ? '0 4px 20px rgba(108, 24, 156, 0.45)' : 'none',
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
           }}
         >
-          Simulador Atualizado
-          {/* Badge de novidade para chamar atenção */}
-          <span style={{ 
-            backgroundColor: abaAtiva === 'simulador' ? '#fff' : '#6c189c', 
-            color: abaAtiva === 'simulador' ? '#6c189c' : '#fff', 
-            fontSize: '0.65rem', 
-            padding: '3px 7px', 
-            borderRadius: '10px', 
+          ⚽ Jogos
+        </button>
+
+        <button
+          onClick={() => setPagina('simulador')}
+          style={{
+            padding: '0.7rem 2.2rem',
+            borderRadius: '25px',
+            fontWeight: 'bold',
+            fontSize: '0.95rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            border: pagina === 'simulador' ? '1px solid #a855f7' : '1px solid #2c2c2e',
+            backgroundColor: pagina === 'simulador' ? '#6c189c' : '#1c1c1e',
+            color: pagina === 'simulador' ? '#fff' : '#888',
+            boxShadow: pagina === 'simulador' ? '0 4px 20px rgba(108, 24, 156, 0.45)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            position: 'relative'
+          }}
+        >
+          🏆 Simulador
+          <span style={{
+            backgroundColor: '#ffc107',
+            color: '#1c1c1e',
+            fontSize: '0.6rem',
+            padding: '2px 7px',
+            borderRadius: '10px',
             fontWeight: '900',
-            letterSpacing: '0.5px'
+            letterSpacing: '0.5px',
+            position: 'absolute',
+            top: '-10px',
+            right: '-8px',
+            boxShadow: '0 2px 8px rgba(255, 193, 7, 0.5)'
           }}>
-            NOVO
+            ATUALIZADO
           </span>
         </button>
+
       </div>
 
       {/* RENDERIZAÇÃO CONDICIONAL */}
