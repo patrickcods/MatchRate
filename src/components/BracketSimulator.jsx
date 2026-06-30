@@ -124,17 +124,30 @@ function BracketSimulator({ usuario }) {
 
   // Gera os 16 jogos do Round of 16 com base na ordem real da API (mantém a ordem do bracket)
   const gerarRound16 = () => {
-    const jogosFase = jogosApi.filter(j => j.stage === STAGE_MAP.round16);
-    return jogosFase.map((j, i) => ({
-      id: i + 1,
-      apiId: j.id,
-      casa: timeDaApi(j.homeTeam),
-      fora: timeDaApi(j.awayTeam),
-      finalizado: j.status === 'FINISHED',
-      placarCasa: j.score?.fullTime?.home,
-      placarFora: j.score?.fullTime?.away,
-    }));
-  };
+  const jogosFase = jogosApi
+    .filter(j => j.stage === STAGE_MAP.round16)
+    .sort((a, b) => {
+      // Ordena pela data/hora da partida
+      const diff =
+        new Date(a.utcDate).getTime() -
+        new Date(b.utcDate).getTime();
+
+      if (diff !== 0) return diff;
+
+      // Desempate caso duas partidas tenham exatamente o mesmo horário
+      return (a.id ?? 0) - (b.id ?? 0);
+    });
+
+  return jogosFase.map((j, i) => ({
+    id: i + 1,
+    apiId: j.id,
+    casa: timeDaApi(j.homeTeam),
+    fora: timeDaApi(j.awayTeam),
+    finalizado: j.status === 'FINISHED',
+    placarCasa: j.score?.fullTime?.home,
+    placarFora: j.score?.fullTime?.away,
+  }));
+};
 
   const gerarOitavas = () => Array.from({ length: 8 }, (_, i) => ({
     id: i + 1, casa: vencedoresRound16[i * 2 + 1], fora: vencedoresRound16[i * 2 + 2]
