@@ -28,7 +28,7 @@ const BotaoTime = ({ time, selecionado, onClick, bloqueado }) => (
   }}>
     <Bandeira flag={time?.flag} nome={time?.nome} />
     {time?.nome || 'A definir'}
-    {bloqueado && selecionado && <span style={{ fontSize: '0.7rem', color: '#4ade80' }}>✓ real</span>}
+    {bloqueado && selecionado && <span style={{ fontSize: '0.7rem', color: '#4ade80' }}>✓ Passou</span>}
   </button>
 );
 
