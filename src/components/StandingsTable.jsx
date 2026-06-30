@@ -1,4 +1,4 @@
- import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 function StandingsTable() {
   const [data, setData] = useState(null);
@@ -13,23 +13,26 @@ function StandingsTable() {
       .catch(err => console.error("Erro na tabela:", err));
   }, []);
 
-  if (!data) return <p style={{ color: '#fff', textAlign: 'center' }}>Carregando tabela...</p>;
+  if (!data || !Array.isArray(data.standings) || data.standings.length === 0) {
+    return <p style={{ color: '#fff', textAlign: 'center' }}>Carregando tabela...</p>;
+  }
 
-  const grupoAtual = data.standings[grupoIndex];
+  const indiceSeguro = Math.min(grupoIndex, data.standings.length - 1);
+  const grupoAtual = data.standings[indiceSeguro];
+
   const mudarGrupo = (direcao) => {
-    let novoIndex = grupoIndex + direcao;
+    let novoIndex = indiceSeguro + direcao;
     if (novoIndex < 0) novoIndex = data.standings.length - 1;
     if (novoIndex >= data.standings.length) novoIndex = 0;
     setGrupoIndex(novoIndex);
   };
 
-  // Geral: todos os times de todos os grupos, ordenados por pontos > saldo > gols pró
   const geral = data.standings
-    .flatMap(g => g.table.map(t => ({ ...t, grupo: g.group.replace('GROUP_', '') })))
+    .flatMap(g => (g.table || []).map(t => ({ ...t, grupo: (g.group || '').replace('GROUP_', '') })))
     .sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference || b.goalsFor - a.goalsFor);
 
   return (
-    <div style={{ backgroundColor: '#161616', padding: '1rem', borderRadius: '12px', margin: '1rem auto', maxWidth: '600px', border: '1px solid #222'}}>
+    <div style={{ backgroundColor: '#1c1c1e', padding: '1rem', borderRadius: '12px', margin: '1rem auto', maxWidth: '600px', border: '1px solid #2c2c2e' }}>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '1rem' }}>
         <button onClick={() => setVerGeral(false)} style={{
@@ -50,7 +53,7 @@ function StandingsTable() {
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <span onClick={() => mudarGrupo(-1)} style={{ cursor: 'pointer', color: '#6c189c', fontSize: '1.2rem' }}>{'<'}</span>
-            <h3 style={{ color: '#fff', margin: 0 }}>{grupoAtual.group.replace('_', ' ')}</h3>
+            <h3 style={{ color: '#fff', margin: 0 }}>{(grupoAtual.group || '').replace('_', ' ')}</h3>
             <span onClick={() => mudarGrupo(1)} style={{ cursor: 'pointer', color: '#6c189c', fontSize: '1.2rem' }}>{'>'}</span>
           </div>
 
@@ -61,8 +64,8 @@ function StandingsTable() {
               </tr>
             </thead>
             <tbody>
-              {grupoAtual.table.map((time) => (
-                <tr key={time.team.id} style={{ borderTop: '1px solid #222' }}>
+              {(grupoAtual.table || []).map((time) => (
+                <tr key={time.team.id} style={{ borderTop: '1px solid #2c2c2e' }}>
                   <td style={{ padding: '8px' }}>{time.position}</td>
                   <td style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', textAlign: 'left' }}>
                     <img src={time.team.crest} style={{ width: '20px' }} /> {time.team.shortName}
@@ -90,7 +93,7 @@ function StandingsTable() {
               {geral.map((time, i) => {
                 const zona = i < 24 ? '#1a472a' : i < 32 ? '#3a3a1a' : 'transparent';
                 return (
-                  <tr key={time.team.id} style={{ borderTop: '1px solid #222', backgroundColor: zona }}>
+                  <tr key={time.team.id} style={{ borderTop: '1px solid #2c2c2e', backgroundColor: zona }}>
                     <td style={{ padding: '6px' }}>{i + 1}</td>
                     <td style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px', textAlign: 'left' }}>
                       <img src={time.team.crest} style={{ width: '18px' }} /> {time.team.shortName}

@@ -6,8 +6,10 @@ function RankingJogos({ jogos }) {
   const [expandido, setExpandido] = useState(false);
   const LIMITE_INICIAL = 4;
 
+  const jogosSeguro = Array.isArray(jogos) ? jogos : [];
+
   useEffect(() => {
-    if (jogos.length === 0) return;
+    if (jogosSeguro.length === 0) return;
 
     fetch(`${import.meta.env.VITE_API_URL}/api/v1/jogos/ranking`)
       .then(res => res.json())
@@ -19,9 +21,9 @@ function RankingJogos({ jogos }) {
         }
 
         const lista = data.map(item => {
-          const jogoEncontrado = jogos.find(j => j.id === item.id_jogo);
+          const jogoEncontrado = jogosSeguro.find(j => j.id === item.id_jogo);
           return { ...item, jogoData: jogoEncontrado };
-        }).filter(item => item.jogoData);
+        }).filter(item => item.jogoData && item.jogoData.homeTeam && item.jogoData.awayTeam);
 
         setRankingCompleto(lista);
       })
@@ -29,7 +31,7 @@ function RankingJogos({ jogos }) {
         console.error("Erro ao buscar ranking de jogos:", err);
         setRankingCompleto([]);
       })
-  }, [jogos]);
+  }, [jogosSeguro]);
 
   if (rankingCompleto.length === 0) return null;
 
@@ -37,7 +39,7 @@ function RankingJogos({ jogos }) {
   const temMais = rankingCompleto.length > LIMITE_INICIAL;
 
   return (
-    <div style={{ backgroundColor: '#161616', padding: '1.5rem', borderRadius: '12px', border: '1px solid #222' }}>
+    <div style={{ backgroundColor: '#1c1c1e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #2c2c2e' }}>
       <h3 style={{ color: '#ffc107', textAlign: 'center', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
         <FaStar /> Melhores Jogos da Copa <FaStar />
       </h3>
@@ -62,19 +64,19 @@ function RankingJogos({ jogos }) {
         paddingRight: expandido && rankingCompleto.length > 9 ? '4px' : '0'
       }}>
         {rankingExibido.map((item, index) => {
-          const timeCasa = item.jogoData.homeTeam.shortName || item.jogoData.homeTeam.name || 'Time A';
-          const timeFora = item.jogoData.awayTeam.shortName || item.jogoData.awayTeam.name || 'Time B';
+          const timeCasa = item.jogoData?.homeTeam?.shortName || item.jogoData?.homeTeam?.name || 'Time A';
+          const timeFora = item.jogoData?.awayTeam?.shortName || item.jogoData?.awayTeam?.name || 'Time B';
 
           return (
-            <div key={item.id_jogo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1a1a1a', padding: '10px 20px', borderRadius: '8px', border: '1px solid #2a2a2a' }}>
+            <div key={item.id_jogo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1c1c1e', padding: '10px 20px', borderRadius: '8px', border: '1px solid #2c2c2e' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                 <span style={{ color: '#6c189c', fontWeight: 'bold', fontSize: '1.2rem' }}>{index + 1}º</span>
                 <span style={{ color: '#fff', fontWeight: 'bold' }}>{timeCasa} vs {timeFora}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ color: '#ffc107', fontWeight: 'bold', fontSize: '1.1rem' }}>{item.media.toFixed(1)}</span>
+                <span style={{ color: '#ffc107', fontWeight: 'bold', fontSize: '1.1rem' }}>{(item.media ?? 0).toFixed(1)}</span>
                 <FaStar color="#ffc107" size={14} />
-                <span style={{ color: '#666', fontSize: '0.8rem' }}>({item.total_votos})</span>
+                <span style={{ color: '#666', fontSize: '0.8rem' }}>({item.total_votos ?? 0})</span>
               </div>
             </div>
           )
