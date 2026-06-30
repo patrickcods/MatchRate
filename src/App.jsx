@@ -153,10 +153,58 @@ function App() {
       )}
 
       {/* MENU DE NAVEGAÇÃO */}
-      <nav style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <button onClick={() => setPagina('home')} style={{ margin: '0 10px', padding: '10px 20px', cursor: 'pointer' }}>Jogos</button>
-        <button onClick={() => setPagina('simulador')} style={{ margin: '0 10px', padding: '10px 20px', cursor: 'pointer' }}>Simulador</button>
-      </nav>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '2rem', marginTop: '1rem' }}>
+        <button 
+          onClick={() => setAbaAtiva('jogos')} // <-- Ajuste para a sua variável de estado real
+          style={{
+            padding: '0.6rem 2rem',
+            borderRadius: '25px',
+            fontWeight: 'bold',
+            fontSize: '0.95rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            border: '1px solid',
+            backgroundColor: abaAtiva === 'jogos' ? '#6c189c' : '#161616',
+            borderColor: abaAtiva === 'jogos' ? '#6c189c' : '#2a2a2a',
+            color: abaAtiva === 'jogos' ? '#fff' : '#888',
+          }}
+        >
+          Jogos
+        </button>
+
+        <button 
+          onClick={() => setAbaAtiva('simulador')} // <-- Ajuste para a sua variável de estado real
+          style={{
+            padding: '0.6rem 2rem',
+            borderRadius: '25px',
+            fontWeight: 'bold',
+            fontSize: '0.95rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            border: '1px solid',
+            backgroundColor: abaAtiva === 'simulador' ? '#6c189c' : '#161616',
+            borderColor: abaAtiva === 'simulador' ? '#6c189c' : '#2a2a2a',
+            color: abaAtiva === 'simulador' ? '#fff' : '#888',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          Simulador Atualizado
+          {/* Badge de novidade para chamar atenção */}
+          <span style={{ 
+            backgroundColor: abaAtiva === 'simulador' ? '#fff' : '#6c189c', 
+            color: abaAtiva === 'simulador' ? '#6c189c' : '#fff', 
+            fontSize: '0.65rem', 
+            padding: '3px 7px', 
+            borderRadius: '10px', 
+            fontWeight: '900',
+            letterSpacing: '0.5px'
+          }}>
+            NOVO
+          </span>
+        </button>
+      </div>
 
       {/* RENDERIZAÇÃO CONDICIONAL */}
       {pagina === 'home' ? (
