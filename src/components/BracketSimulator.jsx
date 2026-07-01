@@ -277,7 +277,7 @@ function BracketSimulator({ usuario }) {
         </div>
       )}
 
-      {/* SEMI */}
+      {/* SEMIFINAIS */}
       {fase === 'semi' && (
         <div style={{ textAlign: 'center' }}>
           <h2>Semifinal</h2>
