@@ -1,18 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 
 const SITE_URL = 'https://match-rate-amber.vercel.app';
 
-// Mapa de fase do simulador -> stage da API
+// Mapa de fase reduzido: começa nas quartas
 const STAGE_MAP = {
-  round16: 'LAST_32',
-  oitavas: 'LAST_16',
   quartas: 'QUARTER_FINALS',
   semi: 'SEMI_FINALS',
   final: 'FINAL',
 };
-
-const flagCdn = (nome) => `https://flagcdn.com/w40/${nome}.png`; // fallback não usado, mantemos crest da API
 
 const Bandeira = ({ flag, nome }) => (
   flag ? <img src={flag} alt={nome} style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }} /> : null
@@ -34,13 +30,13 @@ const BotaoTime = ({ time, selecionado, onClick, bloqueado }) => (
 
 const cardMatchStyle = { display: 'flex', gap: '15px', backgroundColor: '#1c1c1e', padding: '15px', borderRadius: '8px', border: '1px solid #2c2c2e', width: '340px', justifyContent: 'center', alignItems: 'center' };
 
-const JogoCard = ({ jogo, vencedores, setter, votar, automatico }) => (
+const JogoCard = ({ jogo, vencedor, votar, automatico }) => (
   <div style={cardMatchStyle}>
-    <BotaoTime time={jogo.casa} selecionado={vencedores[jogo.id]?.nome === jogo.casa?.nome}
-      onClick={() => votar(setter, jogo.id, jogo.casa, jogo.fora)} bloqueado={automatico} />
+    <BotaoTime time={jogo.casa} selecionado={vencedor?.nome === jogo.casa?.nome}
+      onClick={() => votar(jogo, jogo.casa)} bloqueado={automatico} />
     <span style={{ fontWeight: 'bold', color: '#555', flexShrink: 0 }}>VS</span>
-    <BotaoTime time={jogo.fora} selecionado={vencedores[jogo.id]?.nome === jogo.fora?.nome}
-      onClick={() => votar(setter, jogo.id, jogo.fora, jogo.casa)} bloqueado={automatico} />
+    <BotaoTime time={jogo.fora} selecionado={vencedor?.nome === jogo.fora?.nome}
+      onClick={() => votar(jogo, jogo.fora)} bloqueado={automatico} />
   </div>
 );
 
@@ -84,7 +80,6 @@ const BotoesCompartilhar = ({ texto, refArea }) => {
   );
 };
 
-// Converte um jogo da API em { nome, flag(crest) }
 const timeDaApi = (teamObj) => {
   if (!teamObj || !teamObj.name) return null;
   return { nome: teamObj.shortName || teamObj.name, flag: teamObj.crest };
@@ -93,112 +88,112 @@ const timeDaApi = (teamObj) => {
 function BracketSimulator({ usuario }) {
   const [jogosApi, setJogosApi] = useState([]);
   const [carregando, setCarregando] = useState(true);
-
-  const [fase, setFase] = useState('round16');
-  const [vencedoresRound16, setVencedoresRound16] = useState({});
-  const [vencedoresOitavas, setVencedoresOitavas] = useState({});
-  const [vencedoresQuartas, setVencedoresQuartas] = useState({});
-  const [vencedoresSemi, setVencedoresSemi] = useState({});
+  
+  // O Simulador agora começa nas quartas
+  const [fase, setFase] = useState('quartas'); 
+  const [vencedores, setVencedores] = useState({});
   const [campeao, setCampeao] = useState(null);
 
-  const refRound16 = useRef(null);
-  const refOitavas = useRef(null);
   const refQuartas = useRef(null);
   const refSemi = useRef(null);
   const refCampeao = useRef(null);
 
-  // Busca os jogos reais da API uma vez
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/v1/jogos`)
       .then(res => res.json())
       .then(data => {
         const lista = Array.isArray(data?.matches) ? data.matches : Array.isArray(data) ? data : [];
         setJogosApi(lista);
-        setCarregando(false);
       })
-      .catch(err => {
-        console.error("Erro ao buscar jogos para o simulador:", err);
-        setCarregando(false);
-      });
+      .catch(console.error)
+      .finally(() => setCarregando(false));
   }, []);
 
-  // Gera os 16 jogos do Round of 16 com base na ordem real da API (mantém a ordem do bracket)
-  const gerarRound16 = () => {
-  const jogosFase = jogosApi
-    .filter(j => j.stage === STAGE_MAP.round16)
-    .sort((a, b) => {
-      // Ordena pela data/hora da partida
-      const diff =
-        new Date(a.utcDate).getTime() -
-        new Date(b.utcDate).getTime();
+  const gerarFase = useCallback((stage) => {
+    const resolverTime = (team, sourceMatchId) => {
+      if (team?.name) return timeDaApi(team);
+      if (sourceMatchId == null) return null;
+      return vencedores[sourceMatchId] ?? null;
+    };
 
-      if (diff !== 0) return diff;
+    return jogosApi
+      .filter(j => j.stage === stage)
+      .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate))
+      .map((j, i) => {
+        const sourceHome = j.source?.home ?? j.homeSource?.matchId;
+        const sourceAway = j.source?.away ?? j.awaySource?.matchId;
 
-      // Desempate caso duas partidas tenham exatamente o mesmo horário
-      return (a.id ?? 0) - (b.id ?? 0);
-    });
+        return {
+          id: i + 1,
+          apiId: j.id,
+          casa: resolverTime(j.homeTeam, sourceHome),
+          fora: resolverTime(j.awayTeam, sourceAway),
+          finalizado: j.status === 'FINISHED',
+          placarCasa: j.score?.fullTime?.home,
+          placarFora: j.score?.fullTime?.away,
+        };
+      });
+  }, [jogosApi, vencedores]);
 
-  return jogosFase.map((j, i) => ({
-    id: i + 1,
-    apiId: j.id,
-    casa: timeDaApi(j.homeTeam),
-    fora: timeDaApi(j.awayTeam),
-    finalizado: j.status === 'FINISHED',
-    placarCasa: j.score?.fullTime?.home,
-    placarFora: j.score?.fullTime?.away,
-  }));
-};
-
-  const gerarOitavas = () => Array.from({ length: 8 }, (_, i) => ({
-    id: i + 1, casa: vencedoresRound16[i * 2 + 1], fora: vencedoresRound16[i * 2 + 2]
-  }));
-  const gerarQuartas = () => Array.from({ length: 4 }, (_, i) => ({
-    id: i + 1, casa: vencedoresOitavas[i * 2 + 1], fora: vencedoresOitavas[i * 2 + 2]
-  }));
-  const gerarSemi = () => [
-    { id: 1, casa: vencedoresQuartas[1], fora: vencedoresQuartas[2] },
-    { id: 2, casa: vencedoresQuartas[3], fora: vencedoresQuartas[4] }
-  ];
-  const gerarFinal = () => [{ id: 1, casa: vencedoresSemi[1], fora: vencedoresSemi[2] }];
-
-  // Auto-preenche vencedores de jogos já finalizados na API (Round of 16)
   useEffect(() => {
-    if (jogosApi.length === 0) return;
-    const r16 = gerarRound16();
-    setVencedoresRound16(prev => {
+    if (!jogosApi.length) return;
+
+    setVencedores(prev => {
       const novo = { ...prev };
-      r16.forEach(j => {
-        if (j.finalizado && j.casa && j.fora && typeof j.placarCasa === 'number') {
-          const vencedor = j.placarCasa > j.placarFora ? j.casa : j.placarFora > j.placarCasa ? j.fora : null;
-          if (vencedor) novo[j.id] = vencedor;
+      jogosApi.forEach(j => {
+        if (j.status !== 'FINISHED') return;
+        
+        const casa = timeDaApi(j.homeTeam);
+        const fora = timeDaApi(j.awayTeam);
+        if (!casa || !fora) return;
+
+        const score = j.score?.fullTime;
+        const penalties = j.score?.penalties;
+
+        if (!score) return;
+
+        if (score.home > score.away) {
+          novo[j.id] = casa;
+        } else if (score.away > score.home) {
+          novo[j.id] = fora;
+        } else if (penalties) {
+          if (penalties.home > penalties.away) {
+            novo[j.id] = casa;
+          } else if (penalties.away > penalties.home) {
+            novo[j.id] = fora;
+          }
         }
       });
       return novo;
     });
   }, [jogosApi]);
 
-  const votar = (setter, jogoId, timeObj, timeAdversario) => {
-    if (!timeObj || !timeAdversario || timeObj.nome === timeAdversario.nome) return;
-    setter(prev => ({ ...prev, [jogoId]: timeObj }));
+  const votar = (jogo, time) => {
+    setVencedores(prev => ({
+      ...prev,
+      [jogo.apiId]: time,
+    }));
   };
 
-  const textoFase = (titulo, jogos, vencedores) => {
+  const jogos8  = useMemo(() => gerarFase(STAGE_MAP.quartas), [gerarFase]);
+  const jogos4  = useMemo(() => gerarFase(STAGE_MAP.semi), [gerarFase]);
+  const jogos2  = useMemo(() => gerarFase(STAGE_MAP.final), [gerarFase]);
+
+  const textoFase = (titulo, jogos) => {
     const linhas = jogos.map(j => {
       const casa = j.casa?.nome || 'A definir';
       const fora = j.fora?.nome || 'A definir';
-      const v = vencedores[j.id];
+      const v = vencedores[j.apiId];
       return v ? `  ${casa} vs ${fora} → ${v.nome}` : `  ${casa} vs ${fora}`;
     }).join('\n');
     return `${titulo} — Minha simulação:\n\n${linhas}\n\nFaça a sua em ${SITE_URL}`;
   };
 
   const textoCampeao = () => {
-    const round16 = gerarRound16().map(j => `  ${j.casa?.nome} vs ${j.fora?.nome} → ${vencedoresRound16[j.id]?.nome || '?'}`).join('\n');
-    const oitavas = gerarOitavas().map(j => `  ${j.casa?.nome || '?'} vs ${j.fora?.nome || '?'} → ${vencedoresOitavas[j.id]?.nome || '?'}`).join('\n');
-    const quartas = gerarQuartas().map(j => `  ${j.casa?.nome || '?'} vs ${j.fora?.nome || '?'} → ${vencedoresQuartas[j.id]?.nome || '?'}`).join('\n');
-    const semi = gerarSemi().map(j => `  ${j.casa?.nome || '?'} vs ${j.fora?.nome || '?'} → ${vencedoresSemi[j.id]?.nome || '?'}`).join('\n');
-    const final = gerarFinal().map(j => `  ${j.casa?.nome || '?'} vs ${j.fora?.nome || '?'} → ${campeao?.nome || '?'}`).join('\n');
-    return `Minha simulação da Copa 2026 (a partir dos 16 avos):\n\n16 Avos:\n${round16}\n\nOitavas:\n${oitavas}\n\nQuartas:\n${quartas}\n\nSemifinais:\n${semi}\n\nFinal:\n${final}\n\n🏆 Campeão: ${campeao?.nome}\n\nFaça a sua em ${SITE_URL}`;
+    const qua = jogos8.map(j => `  ${j.casa?.nome || '?'} vs ${j.fora?.nome || '?'} → ${vencedores[j.apiId]?.nome || '?'}`).join('\n');
+    const sem = jogos4.map(j => `  ${j.casa?.nome || '?'} vs ${j.fora?.nome || '?'} → ${vencedores[j.apiId]?.nome || '?'}`).join('\n');
+    const fin = jogos2.map(j => `  ${j.casa?.nome || '?'} vs ${j.fora?.nome || '?'} → ${campeao?.nome || '?'}`).join('\n');
+    return `Minha simulação da Copa 2026 (Fase Final):\n\nQuartas:\n${qua}\n\nSemifinais:\n${sem}\n\nFinal:\n${fin}\n\n🏆 Campeão: ${campeao?.nome}\n\nFaça a sua em ${SITE_URL}`;
   };
 
   const containerStyle = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '1.5rem' };
@@ -210,85 +205,44 @@ function BracketSimulator({ usuario }) {
   const [simulacaoSalva, setSimulacaoSalva] = useState(false);
 
   if (carregando) {
-    return <p style={{ color: '#fff', textAlign: 'center', padding: '3rem' }}>Carregando confrontos reais da Copa...</p>;
+    return <p style={{ color: '#fff', textAlign: 'center', padding: '3rem' }}>Carregando confrontos da Copa...</p>;
   }
-
-  const round16Jogos = gerarRound16();
 
   return (
     <div style={{ color: '#fff', padding: '20px', maxWidth: '1100px', margin: '0 auto', fontFamily: 'sans-serif' }}>
 
-      {/* ROUND OF 16 */}
-      {fase === 'round16' && (
-        <div style={{ textAlign: 'center' }}>
-          <h2>16 Avos de Final</h2>
-          <div style={bannerStyle}>
-            <p style={bannerTexto}>Confrontos reais da Copa! Jogos já encerrados são preenchidos automaticamente — você só escolhe os que ainda vão rolar.</p>
-          </div>
-          <div ref={refRound16} style={{ backgroundColor: '#121212', padding: '1rem' }}>
-            <div style={containerStyle}>
-              {round16Jogos.map(jogo => (
-                <JogoCard key={jogo.id} jogo={jogo} vencedores={vencedoresRound16} setter={setVencedoresRound16} votar={votar} automatico={jogo.finalizado} />
-              ))}
-            </div>
-          </div>
-          <BotoesCompartilhar texto={textoFase('16 Avos de Final', round16Jogos, vencedoresRound16)} refArea={refRound16} />
-          <div style={{ textAlign: 'center' }}>
-            <button onClick={() => setFase('oitavas')} style={btnAvancarStyle}>Avançar para Oitavas →</button>
-          </div>
-        </div>
-      )}
-
-      {/* OITAVAS */}
-      {fase === 'oitavas' && (
-        <div style={{ textAlign: 'center' }}>
-          <h2>Oitavas de Final</h2>
-          <div ref={refOitavas} style={{ backgroundColor: '#121212', padding: '1rem' }}>
-            <div style={containerStyle}>
-              {gerarOitavas().map(jogo => (
-                <JogoCard key={jogo.id} jogo={jogo} vencedores={vencedoresOitavas} setter={setVencedoresOitavas} votar={votar} />
-              ))}
-            </div>
-          </div>
-          <BotoesCompartilhar texto={textoFase('Oitavas de Final', gerarOitavas(), vencedoresOitavas)} refArea={refOitavas} />
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-            <button onClick={() => setFase('round16')} style={{ ...btnAvancarStyle, backgroundColor: '#333' }}>← Voltar</button>
-            <button onClick={() => setFase('quartas')} style={btnAvancarStyle}>Avançar para Quartas →</button>
-          </div>
-        </div>
-      )}
-
-      {/* QUARTAS */}
       {fase === 'quartas' && (
         <div style={{ textAlign: 'center' }}>
           <h2>Quartas de Final</h2>
+          <div style={bannerStyle}>
+            <p style={bannerTexto}>A Copa afunilou! Simule a reta final do torneio a partir dos confrontos já definidos.</p>
+          </div>
           <div ref={refQuartas} style={{ backgroundColor: '#121212', padding: '1rem' }}>
             <div style={containerStyle}>
-              {gerarQuartas().map(jogo => (
-                <JogoCard key={jogo.id} jogo={jogo} vencedores={vencedoresQuartas} setter={setVencedoresQuartas} votar={votar} />
+              {jogos8.map(jogo => (
+                <JogoCard key={jogo.apiId} jogo={jogo} vencedor={vencedores[jogo.apiId]} votar={votar} automatico={jogo.finalizado} />
               ))}
             </div>
           </div>
-          <BotoesCompartilhar texto={textoFase('Quartas de Final', gerarQuartas(), vencedoresQuartas)} refArea={refQuartas} />
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-            <button onClick={() => setFase('oitavas')} style={{ ...btnAvancarStyle, backgroundColor: '#333' }}>← Voltar</button>
-            <button onClick={() => setFase('semi')} style={btnAvancarStyle}>Avançar para Semifinal →</button>
+          <BotoesCompartilhar texto={textoFase('Quartas de Final', jogos8)} refArea={refQuartas} />
+          <div style={{ textAlign: 'center' }}>
+            {/* Como quartas é a primeira etapa agora, não tem botão voltar */}
+            <button onClick={() => setFase('semi')} style={btnAvancarStyle}>Avançar para Semifinais →</button>
           </div>
         </div>
       )}
 
-      {/* SEMIFINAIS */}
       {fase === 'semi' && (
         <div style={{ textAlign: 'center' }}>
           <h2>Semifinal</h2>
           <div ref={refSemi} style={{ backgroundColor: '#121212', padding: '1rem' }}>
             <div style={containerStyle}>
-              {gerarSemi().map(jogo => (
-                <JogoCard key={jogo.id} jogo={jogo} vencedores={vencedoresSemi} setter={setVencedoresSemi} votar={votar} />
+              {jogos4.map(jogo => (
+                <JogoCard key={jogo.apiId} jogo={jogo} vencedor={vencedores[jogo.apiId]} votar={votar} automatico={jogo.finalizado} />
               ))}
             </div>
           </div>
-          <BotoesCompartilhar texto={textoFase('Semifinal', gerarSemi(), vencedoresSemi)} refArea={refSemi} />
+          <BotoesCompartilhar texto={textoFase('Semifinal', jogos4)} refArea={refSemi} />
           <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
             <button onClick={() => setFase('quartas')} style={{ ...btnAvancarStyle, backgroundColor: '#333' }}>← Voltar</button>
             <button onClick={() => setFase('final')} style={btnAvancarStyle}>Avançar para a Final →</button>
@@ -296,24 +250,48 @@ function BracketSimulator({ usuario }) {
         </div>
       )}
 
-      {/* FINAL */}
       {fase === 'final' && (
         <div style={{ textAlign: 'center' }}>
           <h2>A Grande Final:</h2>
           <div style={containerStyle}>
-            {gerarFinal().map(jogo => (
-              <div key={jogo.id} style={{ ...cardMatchStyle, width: '380px', padding: '20px' }}>
-                <BotaoTime time={jogo.casa} selecionado={campeao?.nome === jogo.casa?.nome} onClick={() => { setCampeao(jogo.casa); setFase('campeao'); }} />
-                <span style={{ fontWeight: 'bold', color: '#555', margin: '0 15px', flexShrink: 0 }}>VS</span>
-                <BotaoTime time={jogo.fora} selecionado={campeao?.nome === jogo.fora?.nome} onClick={() => { setCampeao(jogo.fora); setFase('campeao'); }} />
-              </div>
-            ))}
+            {jogos2.map(jogo => {
+              const vencedorFinal = jogo.finalizado ? vencedores[jogo.apiId] : campeao;
+              
+              return (
+                <div key={jogo.apiId} style={{ ...cardMatchStyle, width: '380px', padding: '20px' }}>
+                  <BotaoTime 
+                    time={jogo.casa} 
+                    selecionado={vencedorFinal?.nome === jogo.casa?.nome} 
+                    bloqueado={jogo.finalizado}
+                    onClick={() => { setCampeao(jogo.casa); setFase('campeao'); }} 
+                  />
+                  <span style={{ fontWeight: 'bold', color: '#555', margin: '0 15px', flexShrink: 0 }}>VS</span>
+                  <BotaoTime 
+                    time={jogo.fora} 
+                    selecionado={vencedorFinal?.nome === jogo.fora?.nome} 
+                    bloqueado={jogo.finalizado}
+                    onClick={() => { setCampeao(jogo.fora); setFase('campeao'); }} 
+                  />
+                </div>
+              );
+            })}
           </div>
-          <button onClick={() => setFase('semi')} style={{ ...btnAvancarStyle, backgroundColor: '#333' }}>← Voltar</button>
+          
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+            <button onClick={() => setFase('semi')} style={{ ...btnAvancarStyle, marginTop: 0, backgroundColor: '#333' }}>← Voltar</button>
+            
+            {jogos2[0]?.finalizado && (
+              <button onClick={() => {
+                setCampeao(vencedores[jogos2[0].apiId]);
+                setFase('campeao');
+              }} style={{ ...btnAvancarStyle, marginTop: 0 }}>
+                Ver Campeão 🏆
+              </button>
+            )}
+          </div>
         </div>
       )}
 
-      {/* CAMPEÃO */}
       {fase === 'campeao' && (
         <div ref={refCampeao} style={{ textAlign: 'center', padding: '3rem 0', backgroundColor: '#121212' }}>
           <img src={campeao?.flag} alt={campeao?.nome} style={{ width: '120px', height: '80px', objectFit: 'cover', borderRadius: '8px', marginBottom: '1.5rem' }} />
@@ -333,9 +311,9 @@ function BracketSimulator({ usuario }) {
                       body: JSON.stringify({
                         campeao_nome: campeao.nome,
                         campeao_flag: campeao.flag,
-                        semi: gerarSemi().map(j => ({ casa: j.casa?.nome, fora: j.fora?.nome, vencedor: vencedoresSemi[j.id]?.nome })),
-                        quartas: gerarQuartas().map(j => ({ casa: j.casa?.nome, fora: j.fora?.nome, vencedor: vencedoresQuartas[j.id]?.nome })),
-                        oitavas: gerarOitavas().map(j => ({ casa: j.casa?.nome, fora: j.fora?.nome, vencedor: vencedoresOitavas[j.id]?.nome }))
+                        semi: jogos4.map(j => ({ casa: j.casa?.nome, fora: j.fora?.nome, vencedor: vencedores[j.apiId]?.nome })),
+                        quartas: jogos8.map(j => ({ casa: j.casa?.nome, fora: j.fora?.nome, vencedor: vencedores[j.apiId]?.nome }))
+                        // Removidos oitavas e dezesseis_avos do payload
                       })
                     });
                     setSimulacaoSalva(true);
@@ -365,22 +343,20 @@ function BracketSimulator({ usuario }) {
           </div>
 
           <div style={{ backgroundColor: '#1c1c1e', border: '1px solid #2c2c2e', borderRadius: '12px', padding: '1.5rem', maxWidth: '500px', margin: '2rem auto', textAlign: 'left' }}>
-            <h3 style={{ color: '#ffffff', margin: '0 0 1rem 0', textAlign: 'center' }}>Sua jornada completa</h3>
+            <h3 style={{ color: '#ffffff', margin: '0 0 1rem 0', textAlign: 'center' }}>Sua jornada na reta final</h3>
             {[
-              { titulo: '16 Avos', jogos: round16Jogos, vencedores: vencedoresRound16 },
-              { titulo: 'Oitavas', jogos: gerarOitavas(), vencedores: vencedoresOitavas },
-              { titulo: 'Quartas', jogos: gerarQuartas(), vencedores: vencedoresQuartas },
-              { titulo: 'Semifinais', jogos: gerarSemi(), vencedores: vencedoresSemi },
-              { titulo: 'Final', jogos: gerarFinal(), vencedores: { 1: campeao } },
-            ].map(({ titulo, jogos, vencedores }) => (
+              { titulo: 'Quartas de Final', jogos: jogos8 },
+              { titulo: 'Semifinais', jogos: jogos4 },
+              { titulo: 'Final', jogos: jogos2 },
+            ].map(({ titulo, jogos }) => (
               <div key={titulo} style={{ marginBottom: '1rem' }}>
                 <p style={{ color: '#888', fontSize: '0.75rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', textTransform: 'uppercase', letterSpacing: '1px' }}>{titulo}</p>
                 {jogos.map(j => (
-                  <div key={j.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', fontSize: '0.85rem' }}>
+                  <div key={j.apiId} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', fontSize: '0.85rem' }}>
                     <span style={{ color: '#666' }}>{j.casa?.nome || '?'} vs {j.fora?.nome || '?'}</span>
-                    {vencedores[j.id] && <>
+                    {vencedores[j.apiId] && <>
                       <span style={{ color: '#555' }}>→</span>
-                      <span style={{ color: '#a78bfa', fontWeight: 'bold' }}>{vencedores[j.id].nome}</span>
+                      <span style={{ color: '#a78bfa', fontWeight: 'bold' }}>{vencedores[j.apiId].nome}</span>
                     </>}
                   </div>
                 ))}
@@ -391,7 +367,7 @@ function BracketSimulator({ usuario }) {
           <BotoesCompartilhar texto={textoCampeao()} refArea={refCampeao} />
 
           <button
-            onClick={() => { setFase('round16'); setVencedoresOitavas({}); setVencedoresQuartas({}); setVencedoresSemi({}); setCampeao(null); setSimulacaoSalva(false); }}
+            onClick={() => { setFase('quartas'); setVencedores({}); setCampeao(null); setSimulacaoSalva(false); }}
             style={{ ...btnAvancarStyle, marginTop: '1.5rem' }}>
             Reiniciar Simulador
           </button>
