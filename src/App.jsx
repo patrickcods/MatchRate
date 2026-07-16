@@ -209,7 +209,7 @@ function App() {
             right: '-8px',
             boxShadow: '0 2px 8px rgba(255, 193, 7, 0.5)'
           }}>
-            EM MANUTENÇÃO
+            MANUTENÇÃO
           </span>
         </button>
 
