@@ -313,7 +313,6 @@ function BracketSimulator({ usuario }) {
                         campeao_flag: campeao.flag,
                         semi: jogos4.map(j => ({ casa: j.casa?.nome, fora: j.fora?.nome, vencedor: vencedores[j.apiId]?.nome })),
                         quartas: jogos8.map(j => ({ casa: j.casa?.nome, fora: j.fora?.nome, vencedor: vencedores[j.apiId]?.nome }))
-                        // Removidos oitavas e dezesseis_avos do payload
                       })
                     });
                     setSimulacaoSalva(true);
