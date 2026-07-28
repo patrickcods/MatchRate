@@ -3,7 +3,6 @@ import html2canvas from 'html2canvas';
 
 const SITE_URL = 'https://match-rate-amber.vercel.app';
 
-// Mapa de fase reduzido: agora começa nas quartas
 const STAGE_MAP = {
   quartas: 'QUARTER_FINALS',
   semi: 'SEMI_FINALS',
