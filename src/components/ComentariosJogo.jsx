@@ -118,7 +118,7 @@ function ComentariosJogo({ jogoId, timeCasa, timeFora }) {
               {renderEstrelas(c.nota)}
             </div>
             
-            {/* TEXTO LIMITADO A 3 LINHAS */}
+            {/* TEXTO LIMITADO: 3 LINHAS */}
             <p style={{ 
               color: '#aaa', 
               fontSize: '0.82rem', 
