@@ -57,7 +57,7 @@ function AuthModal({ onClose, onLogin }) {
         onLogin(userData)
       } else {
         
-        // Cadastro e boas-vindas
+        // Cadastro e boas-vindas 
         const res = await fetch(`${API}/api/v1/auth/cadastro`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -111,7 +111,7 @@ function AuthModal({ onClose, onLogin }) {
     ? TODOS_TIMES.filter(t => t.nome.toLowerCase().includes(busca.toLowerCase()))
     : TODOS_TIMES
 
-  // TELA DE BOAS-VINDAS
+  // TELA DE BOAS-VINDAS 
   if (etapa === 'boasvindas') {
     return (
       <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 }}>
