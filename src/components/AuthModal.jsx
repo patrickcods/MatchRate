@@ -57,7 +57,7 @@ function AuthModal({ onClose, onLogin }) {
         onLogin(userData)
       } else {
         
-      
+        // Cadastro e boas-vindas
         const res = await fetch(`${API}/api/v1/auth/cadastro`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
