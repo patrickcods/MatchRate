@@ -78,7 +78,7 @@ function App() {
       .catch(err => console.error("Erro ao buscar jogos no endpoint:", err));
   }, []);
 
-    
+    {/* RETURN PRINCIPAL */}
   return (
     <div style={{ backgroundColor: '#121212', minHeight: '100vh', padding: '2rem', fontFamily: 'sans-serif' }}>
 
