@@ -52,7 +52,7 @@ const BotoesCompartilhar = ({ texto, refArea }) => {
     }
   };
 
-    
+    {'Função PRINT no simulador'}
   const tirarPrint = async () => {
     if (!refArea?.current) return;
     const canvas = await html2canvas(refArea.current, { backgroundColor: '#121212', scale: 2 });
