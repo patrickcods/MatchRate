@@ -134,6 +134,7 @@ function App() {
           )}
         </div>
 
+        {/* Botão de perfil */}
         {usuario && (
           <button onClick={() => setPagina('perfil')} style={styles.navButton}>
             Meu Perfil
