@@ -154,7 +154,7 @@ function App() {
         />
       )}
 
-      {/* MENU DE NAVEGAÇÃO */}
+
       <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '2.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
 
         <button
