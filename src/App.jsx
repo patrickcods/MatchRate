@@ -142,17 +142,7 @@ function App() {
         )}
       </header>
 
-      {mostrarAuth && (
-        <AuthModal
-          onClose={() => setMostrarAuth(false)}
-          onLogin={(user) => {
-            setUsuario(user);
-            setMostrarAuth(false);
-            const token = localStorage.getItem('token');
-            if (token) buscarMeuCampeao(token);
-          }}
-        />
-      )}
+      
 
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '2.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
