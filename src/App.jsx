@@ -246,16 +246,3 @@ function App() {
           onAtualizarCampeao={(novaSimulacao) => setMeuCampeao(novaSimulacao)}
         />
       )}
-
-      {jogoSelecionado && (
-        <RatingModal
-          jogo={jogoSelecionado}
-          onClose={() => setJogoSelecionado(null)}
-        />
-      )}
-
-    </div>
-  );
-}
-
-export default App;
