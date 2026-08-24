@@ -26,7 +26,6 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-# Certifique-se de que python-multipart está no requirements
 gunicorn main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
 
 
@@ -34,7 +33,6 @@ Frontend:
 
 cd frontend
 npm install
-# Configure VITE_API_URL no seu arquivo .env
 npm run dev
 
 
