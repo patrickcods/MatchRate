@@ -1,7 +1,7 @@
-MatchRate - App de Engajamento da Copa do Mundo 2026
+# MatchRate - App de Engajamento da Copa do Mundo 2026
 Uma plataforma intuitiva para avaliar e prever a jornada das partidas da Copa do Mundo 2026. Acompanhe placares, veja a classificação, simule o chaveamento final e contribua com avaliações personalizadas e curvas de engajamento das partidas.
 
-⚽ Funcionalidades:
+## ⚽ Funcionalidades:
 
 Lista de Partidas: Visualize partidas da Copa 2026, integradas via API externa de futebol.
 Classificação dos Grupos: Tabelas detalhadas de todos os grupos, atualizadas de acordo com os resultados.
@@ -10,7 +10,7 @@ Simulador de Chaveamento: Preveja o caminho até a taça com um simulador de mat
 Perfil e Autenticação: Contas seguras utilizando JWT para salvar suas avaliações, palpites e previsões.
 Compartilhamento Social: Exporte e compartilhe ilustrações das curvas de engajamento das suas partidas favoritas diretamente nas redes sociais.
 
-🛠️ Tecnologias Utilizadas:
+## 🛠️ Tecnologias Utilizadas:
 
 Frontend: React (Vercel)
 Backend: FastAPI, Python (Render)
@@ -18,7 +18,7 @@ Banco de Dados: PostgreSQL (SQLAlchemy)
 Autenticação: JWT, python-jose, passlib[bcrypt]
 Visualização de Dados: Recharts, html2canvas
 
-🚀 Começando (Desenvolvimento):
+## 🚀 Desenvolvimento:
 
 Backend:
 
@@ -26,7 +26,6 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-# Certifique-se de que python-multipart está no requirements
 gunicorn main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
 
 
@@ -34,7 +33,6 @@ Frontend:
 
 cd frontend
 npm install
-# Configure VITE_API_URL no seu arquivo .env
 npm run dev
 
 
