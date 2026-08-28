@@ -1,4 +1,12 @@
-
+import { useState, useEffect } from 'react';
+import MatchList from './components/MatchList';
+import RatingModal from './components/RatingModal';
+import StandingsTable from './components/StandingsTable';
+import BracketSimulator from './components/BracketSimulator';
+import AuthModal from './components/AuthModal';
+import RankingCampeoes from './components/RankingCampeoes';
+import ProfilePage from './components/ProfilePage';
+import RankingJogos from './components/RankingJogos';
 
 function App() {
   const [jogoSelecionado, setJogoSelecionado] = useState(null);
