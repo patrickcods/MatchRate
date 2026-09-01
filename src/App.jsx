@@ -8,6 +8,15 @@ import RankingCampeoes from './components/RankingCampeoes';
 import ProfilePage from './components/ProfilePage';
 import RankingJogos from './components/RankingJogos';
 
+{'Function app'}
+
+function App() {
+  const [jogoSelecionado, setJogoSelecionado] = useState(null);
+  const [jogos, setJogos] = useState([]);
+  const [pagina, setPagina] = useState('home');
+  const [usuario, setUsuario] = useState(null);
+  const [mostrarAuth, setMostrarAuth] = useState(false);
+  const [meuCampeao, setMeuCampeao] = useState(null);
 
   const styles = {
     navButton: {
